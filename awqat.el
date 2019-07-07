@@ -53,8 +53,42 @@
 (setq calendar-latitude 52.4939)
 (setq calendar-longitude 13.4364)
 
+(defun salah-fajr (date)
+  "Calculates the time of fajr for DATE."
+  (car (salah-sunrise-sunset-angle date -15.0)))
+
+(defun salah-isha (date)
+  "Calculates the time of isha for DATE."
+  (cadr (salah-sunrise-sunset-angle date -14.0)))
+
 (defun salah-sunrise-sunset (date)
-  "Calculate the sunrise and sunset on given DATE (ex (7 22 2019))with custom ??? parameter."
+  "Calculate the times of maghrib and imsak for DATE."
+  (salah-sunrise-sunset-angle date -1.66))
+
+(defun salah-height-of-sun-at-noon (date)
+  "Calculates the lengh of the shadow of at solar noon on DATE."
+  (let* ((exact-local-noon (solar-exact-local-noon date))
+		 (t0 (solar-julian-ut-centuries (car exact-local-noon)))
+		 (ut (cadr exact-local-noon))
+
+		 (hnoon (solar-horizontal-coordinates (list t0 ut)
+											  (calendar-latitude)
+											  (calendar-longitude) t))
+		 )
+    ;;(setcar (cdr midday-time) (+ base-time (/ calendar-time-zone 60.0)))
+										;(apply 'solar-time-string (cdr midday-time))
+    
+	hnoon))
+
+(defun test-shadow ()
+  "Just a test."
+  (let ((x 1))
+	(while (<= x 12)
+	  (message (format "%d %s" x (length-of-shadow-at-noon (list x 21 2019))))
+	  (setq x (1+ x)))))
+
+(defun salah-sunrise-sunset-angle (date angle)
+  "Calculate the sunrise and sunset on given DATE (ex (7 22 2019)) with at ANGLE."
   (let* ((exact-local-noon (solar-exact-local-noon date))
          ;; Get the time from the 2000 epoch.
          (t0 (solar-julian-ut-centuries (car exact-local-noon)))
@@ -78,7 +112,7 @@
             (solar-sunrise-and-sunset
              (list t0 (cadr exact-local-noon))
              (calendar-latitude)
-             (calendar-longitude) -1.66)))
+             (calendar-longitude) angle))) ;; This is the parameter that.
          (rise-time (car rise-set))
          (adj-rise (if rise-time (dst-adjust-time date rise-time)))
          (set-time (cadr rise-set))
@@ -100,6 +134,7 @@
   (/ (* x float-pi) 180.0))
 
 (defun asr (date x)
+  "Calculate the asr time on DATE and X ?"
   (let* ((exact-local-noon (solar-exact-local-noon date))
 		 (t0 (solar-julian-ut-centuries (car exact-local-noon)))
 		 (eq (solar-ecliptic-coordinates t0 nil))
@@ -112,15 +147,13 @@
 				(* (cos L) (cos D))))
 	   15.0)))
 
-
-
 (defun salah-fajr (date)
   "Calculate the time of the Fajr prayer on DATE.")
 
 (defun salah-sunrise (date)
   "Calculate the sunrise on DATE.")
 
-(defun salah-zuhr (date)
+(defun salah-dhuhr (date)
   "Calculate the time of Zuhr on DATE."
   (let* ((exact-local-noon (solar-exact-local-noon date))
 		 (midday-time (dst-adjust-time date (cadr exact-local-noon)))
