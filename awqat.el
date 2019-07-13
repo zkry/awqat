@@ -36,7 +36,6 @@
 (setq calendar-latitude 59.9127)
 (setq calendar-longitude 10.7461)
 
-59.9127, 10.7461
 (setq calendar-latitude 48.0)
 
 ;; NOTE: DATE = '(M D Y)
@@ -153,12 +152,14 @@
   "Determine if on DATE, the angle method for isha/fajr should be used."
   ;; TODO: Add case: (lat < X) -> return nil
   (let* ((isha (caadr (awqat-sunrise-sunset-angle date awqat-isha-angle)))
-		 (fajr (caadr (awqat-sunrise-sunset-angle date awqat-fajr-angle)))
-		 (isha-angle (car (awqat-isha--angle date)))
-		 (fajr-angle (car (awqat-fajr--angle date)))
-		 (isha-fajr-diff (- (+ 24.0 fajr) isha))
-		 (isha-fajr-angle-diff (- (+ 24.0 fajr-angle) isha)))
-	(> isha-fajr-angle-diff isha-fajr-diff)))
+		 (fajr (caadr (awqat-sunrise-sunset-angle date awqat-fajr-angle))))
+	(if (or (not isha) (not fajr))
+		t
+	  (let* ((isha-angle (car (awqat-isha--angle date)))
+			 (fajr-angle (car (awqat-fajr--angle date)))
+			 (isha-fajr-diff (- (+ 24.0 fajr) isha))
+			 (isha-fajr-angle-diff (- (+ 24.0 fajr-angle) isha)))
+		(> isha-fajr-angle-diff isha-fajr-diff)))))
 
 ;;; Astronomical calculations
 (defun awqat-height-of-sun-at-noon (date)
@@ -202,6 +203,8 @@
 
 (defun awqat-sunrise-sunset-angle (date angle)
   "Calculate the sunrise and sunset on given DATE (ex (7 22 2019)) with ANGLE above horizon."
+  ;; TODO: Sometimes if the angle is too extreme this will return nil,
+  ;; maybe solar midnight would be better.
   (let* ((exact-local-noon (solar-exact-local-noon date))
          ;; Get the time from the 2000 epoch.
          (t0 (solar-julian-ut-centuries (car exact-local-noon)))
