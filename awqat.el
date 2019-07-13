@@ -174,15 +174,17 @@
 (defun awqat--use-angle-method-p (date)
   "Determine if on DATE, the angle method for isha/fajr should be used."
   ;; TODO: Add case: (lat < X) -> return nil
-  (let* ((isha (caadr (awqat-sunrise-sunset-angle date awqat-isha-angle)))
-		 (fajr (caadr (awqat-sunrise-sunset-angle date awqat-fajr-angle))))
-	(if (or (not isha) (not fajr))
-		t
-	  (let* ((isha-angle (car (awqat-isha--angle date)))
-			 (fajr-angle (car (awqat-fajr--angle date)))
-			 (isha-fajr-diff (- (+ 24.0 fajr) isha))
-			 (isha-fajr-angle-diff (- (+ 24.0 fajr-angle) isha-angle)))
-		(> isha-fajr-angle-diff isha-fajr-diff)))))
+  (if awqat-use-angle-calculation
+	  (let* ((isha (caadr (awqat-sunrise-sunset-angle date awqat-isha-angle)))
+			 (fajr (caadr (awqat-sunrise-sunset-angle date awqat-fajr-angle))))
+		(if (or (not isha) (not fajr))
+			t
+		  (let* ((isha-angle (car (awqat-isha--angle date)))
+				 (fajr-angle (car (awqat-fajr--angle date)))
+				 (isha-fajr-diff (mod (- (+ 24.0 fajr) isha) 24))
+				 (isha-fajr-angle-diff (- (+ 24.0 fajr-angle) isha-angle)))
+			(> isha-fajr-angle-diff isha-fajr-diff))))
+	nil))
 
 (defun awqat--apply-safety-time (prayer time)
   "Apply safty offset to TIME according to PRAYER.
