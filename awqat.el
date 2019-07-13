@@ -36,7 +36,13 @@
 (setq calendar-latitude 59.9127)
 (setq calendar-longitude 10.7461)
 
-(setq calendar-latitude 48.0)
+;; istanbul
+(setq calendar-latitude 40.94832)
+(setq calendar-longitude 29.161208)
+
+;; beypazari ankara
+(setq calendar-latitude 40.160273)
+(setq calendar-longitude 31.921274)
 
 ;; NOTE: DATE = '(M D Y)
 
@@ -46,10 +52,12 @@
 ;;; General settings
 (defvar awqat-sunrise-sunset-below-angle -1.66)
 
+
 ;;; Islamic prayer times settings
 (defvar awqat-fajr-angle -18.0)
 (defvar awqat-isha-angle -17.0)
 (defvar awqat-use-angle-calculation t)
+(defvar awqat-prayer-safety-offsets (make-list 6 0))
 
 ;;; Application commands
 (defun awqat-times-for-day ()
@@ -71,6 +79,22 @@
 		 (setq awqat-fajr-angle -18.0)
 		 (setq awqat-isha-angle -17.0)
 		 (setq awqat-sunrise-sunset-below-angle -1.02)
+		 (setq awqat-prayer-safety-offsets '(0 0 0 0 0 0))
+		 (setq awqat-time-functions (list #'awqat-fajr #'awqat-imsak
+										  #'awqat-dhuhr #'awqat-asr
+										  #'awqat-maghrib #'awqat-isha)))
+		((eq 'umm-al-qura preset)
+		 (setq awqat-fajr-angle -18.5)
+		 (setq awqat-isha-angle -19.0)
+		 (setq awqat-sunrise-sunset-below-angle -1.02)
+		 (setq awqat-time-functions (list #'awqat-fajr #'awqat-imsak
+										  #'awqat-dhuhr #'awqat-asr
+										  #'awqat-maghrib #'awqat-isha)))
+		((eq 'diyanet preset)
+		 (setq awqat-fajr-angle -18.0)
+		 (setq awqat-isha-angle -17.05)
+		 (setq awqat-sunrise-sunset-below-angle -1.66)
+		 (setq awqat-prayer-safety-offsets '(0 -1.0 5.0 4.0 3.0 0.0))
 		 (setq awqat-time-functions (list #'awqat-fajr #'awqat-imsak
 										  #'awqat-dhuhr #'awqat-asr
 										  #'awqat-maghrib #'awqat-isha)))
@@ -80,8 +104,7 @@
 		 (print "egypt"))
 		((eq 'um-alqwa-taqwee preset)
 		 (print "umaltaqweem"))
-		((eq 'diyanet preset)
-		 (print "diyanet"))
+
 		((eq 'igmg preset)
 		 (print "IGMG"))
 		((eq 'uois-karachi preset)
@@ -101,37 +124,37 @@
 ;;; Time Calculation Functions
 (defun awqat-fajr (date)
   "Calculates the time of fajr for DATE."
-  (if (awqat--use-angle-method-p date)
-	  (awqat-fajr--angle date)
-	(car (awqat-sunrise-sunset-angle date awqat-fajr-angle))))
+  (awqat--apply-safety-time 'fajr (if (awqat--use-angle-method-p date)
+									  (awqat-fajr--angle date)
+									(car (awqat-sunrise-sunset-angle date awqat-fajr-angle)))))
 
 (defun awqat-imsak (date)
   "Calculates the time of imsak (sunrise) for DATE."
-  (car (awqat-sunrise-sunset date)))
+  (awqat--apply-safety-time 'imsak (car (awqat-sunrise-sunset date))))
 
 (defun awqat-dhuhr (date)
   "Calculate the time of Zuhr on DATE."
-  (awqat-solar-noon date))				;
+  (awqat--apply-safety-time 'dhuhr (awqat-solar-noon date)))				;
 
 (defun awqat-asr (date &optional hanafi)
   "Return the time for asr on DATE (if HANAFI 2x len + noon shadow)."
-  (let* ((s (awqat-length-of-shadow-at-noon date))
-		 (l (+ (if hanafi 2 1) s))
-		 (h (awqat-rad-to-deg (atan (/ 1 l)))))
-	(cadr (awqat-sunrise-sunset-angle date h))))
+  (awqat--apply-safety-time 'asr (let* ((s (awqat-length-of-shadow-at-noon date))
+										(l (+ (if hanafi 2 1) s))
+										(h (awqat-rad-to-deg (atan (/ 1 l)))))
+							  (cadr (awqat-sunrise-sunset-angle date h)))))
 
 (defun awqat-maghrib (date)
   "Return the time for maghrib (sunset) on DATE."
-  (cadr (awqat-sunrise-sunset date)))
+  (awqat--apply-safety-time 'maghrib (cadr (awqat-sunrise-sunset date))))
 
 (defun awqat-isha (date)
   "Calculates the time of isha for DATE."
-  (if (awqat--use-angle-method-p date)
-	  (awqat-isha--angle date)
-	(cadr (awqat-sunrise-sunset-angle date awqat-isha-angle))))
+  (awqat--apply-safety-time 'isha (if (awqat--use-angle-method-p date)
+									  (awqat-isha--angle date)
+									(cadr (awqat-sunrise-sunset-angle date awqat-isha-angle)))))
 
 (defun awqat-isha--angle (date)
-  "Calculates the time of isha for DATE."
+  "Calculates the time of isha for DATE using angle approx."
   (if awqat-use-angle-calculation
 	  (let* ((sunrise-sunset (awqat-sunrise-sunset date))
 			 (sunset (caadr sunrise-sunset))
@@ -158,8 +181,26 @@
 	  (let* ((isha-angle (car (awqat-isha--angle date)))
 			 (fajr-angle (car (awqat-fajr--angle date)))
 			 (isha-fajr-diff (- (+ 24.0 fajr) isha))
-			 (isha-fajr-angle-diff (- (+ 24.0 fajr-angle) isha)))
+			 (isha-fajr-angle-diff (- (+ 24.0 fajr-angle) isha-angle)))
 		(> isha-fajr-angle-diff isha-fajr-diff)))))
+
+(defun awqat--apply-safety-time (prayer time)
+  "Apply safty offset to TIME according to PRAYER.
+
+TIME is a list with first element in hours, and second a string
+time zone.  Prayer is a symbol for prayer time."
+  (setcar time (+ (/ (awqat--get-safety-time prayer) 60) (car time)))
+  time)
+
+(defun awqat--get-safety-time (prayer)
+  "Return safety time for given PRAYER."
+  (cond ((eq prayer 'fajr) (nth 0 awqat-prayer-safety-offsets))
+		((eq prayer 'imsak) (nth 1 awqat-prayer-safety-offsets))
+		((eq prayer 'dhuhr) (nth 2 awqat-prayer-safety-offsets))
+		((eq prayer 'asr) (nth 3 awqat-prayer-safety-offsets))
+		((eq prayer 'maghrib) (nth 4 awqat-prayer-safety-offsets))
+		((eq prayer 'isha) (nth 5 awqat-prayer-safety-offsets))
+		(t (error "Invalid prayer name"))))
 
 ;;; Astronomical calculations
 (defun awqat-height-of-sun-at-noon (date)
