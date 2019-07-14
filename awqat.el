@@ -83,15 +83,9 @@
   (cond ((eq 'muslim-world-leauge preset)
 		 (setq awqat-fajr-angle -18.0)
 		 (setq awqat-isha-angle -17.0)
+		 (setq awqat-use-angle-calculation t)
 		 (setq awqat-sunrise-sunset-below-angle -1.02)
 		 (setq awqat-prayer-safety-offsets '(0 0 0 0 0 0))
-		 (setq awqat-time-functions (list #'awqat-fajr #'awqat-imsak
-										  #'awqat-dhuhr #'awqat-asr
-										  #'awqat-maghrib #'awqat-isha)))
-		((eq 'umm-al-qura preset)
-		 (setq awqat-fajr-angle -18.5)
-		 (setq awqat-isha-angle -19.0)
-		 (setq awqat-sunrise-sunset-below-angle -1.02)
 		 (setq awqat-time-functions (list #'awqat-fajr #'awqat-imsak
 										  #'awqat-dhuhr #'awqat-asr
 										  #'awqat-maghrib #'awqat-isha)))
@@ -99,8 +93,8 @@
 		 (setq awqat-fajr-angle -18.0)
 		 (setq awqat-isha-angle -17.05)
 		 (setq awqat-use-angle-calculation nil)
-		 (setq awqat-sunrise-sunset-below-angle -1.50)
-		 (setq awqat-prayer-safety-offsets '(0 0.0 5.0 4.0 0.0 0.0))
+		 (setq awqat-sunrise-sunset-below-angle -1.5)
+		 (setq awqat-prayer-safety-offsets '(0 -1.0 5.0 4.0 2.0 0.0))
 		 (setq awqat-time-functions (list #'awqat-fajr--diyanet #'awqat-imsak
 										  #'awqat-dhuhr #'awqat-asr
 										  #'awqat-maghrib #'awqat-isha--diyanet)))
@@ -143,10 +137,10 @@
 		   (sunrise (caar sunrise-sunset))
 		   (sunset (caadr sunrise-sunset))
 		   (fecri-sadik (caadr (awqat-sunrise-sunset-angle date awqat-fajr-angle)))
-		   (third-portion (+ (/ (mod (- (+ fecri-sadik 24.0) sunset) 24.0) 3) 0.166666)))
+		   (third-portion (+ (/ (mod (- (+ fecri-sadik 24.0) sunset) 24.0) 3))))
 	  (if (> third-portion 1.33333)
-		  (list (- sunrise 1.33333 0.166666) (cadar sunrise-sunset))
-		(list (- sunrise third-portion) (cadar sunrise-sunset))))))
+		  (list (- sunrise 1.33333) (cadar sunrise-sunset))
+		(list (- sunrise third-portion 0.1666666) (cadar sunrise-sunset))))))
 
 (defun awqat-fajr--angle (date)
   "Calculates the time of isha for DATE."
@@ -169,7 +163,7 @@
   (awqat--apply-safety-time 'asr (let* ((s (awqat-length-of-shadow-at-noon date))
 										(l (+ (if hanafi 2 1) s))
 										(h (awqat-rad-to-deg (atan (/ 1 l)))))
-							  (cadr (awqat-sunrise-sunset-angle date h)))))
+								   (cadr (awqat-sunrise-sunset-angle date h)))))
 
 (defun awqat-maghrib (date)
   "Return the time for maghrib (sunset) on DATE."
@@ -183,16 +177,17 @@
 
 (defun awqat-isha--diyanet (date)
   "Calculate the isha time on DATE according to diyanet algorithm."
-  (if (< calendar-latitude 45.0)
-	  ;; Run normal isha if lat under 45deg.
-	  (awqat-isha date)
-	(let* ((sunrise-sunset (awqat-sunrise-sunset date))
-		   (sunset (caadr sunrise-sunset))
-		   (fecri-sadik (caadr (awqat-sunrise-sunset-angle date awqat-isha-angle)))
-		   (third-portion (/ (mod (- (+ fecri-sadik 24.0) sunset) 24.0) 3)))
-	  (if (> third-portion 1.33333)
-		  (list (+ sunset 1.33333) (cadar sunrise-sunset))
-		(list (+ third-portion sunset) (cadar sunrise-sunset))))))
+  (awqat--apply-safety-time
+   'isha (if (< calendar-latitude 45.0)
+			 ;; Run normal isha if lat under 45deg.
+			 (awqat-isha date)
+		   (let* ((sunrise-sunset (awqat-sunrise-sunset date))
+				  (sunset (caadr sunrise-sunset))
+				  (fecri-sadik (caadr (awqat-sunrise-sunset-angle date awqat-isha-angle)))
+				  (third-portion (/ (mod (- (+ fecri-sadik 24.0) sunset) 24.0) 3)))
+			 (if (> third-portion 1.33333)
+				 (list (+ sunset 1.33333) (cadar sunrise-sunset))
+			   (list (+ third-portion sunset) (cadar sunrise-sunset)))))))
 
 (defun awqat-isha--angle (date)
   "Calculates the time of isha for DATE using angle approx."
@@ -211,7 +206,7 @@
   ;; TODO: Add case: (lat < X) -> return nil
   (if awqat-use-angle-calculation
 	  (let* ((isha (caadr (awqat-sunrise-sunset-angle date awqat-isha-angle)))
-			 (fajr (caadr (awqat-sunrise-sunset-angle date awqat-fajr-angle))))
+			 (fajr (caar (awqat-sunrise-sunset-angle date awqat-fajr-angle))))
 		(if (or (not isha) (not fajr))
 			t
 		  (let* ((isha-angle (car (awqat-isha--angle date)))
