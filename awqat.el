@@ -33,6 +33,7 @@
 (setq calendar-latitude 52.439)
 (setq calendar-longitude 13.4364)
 
+;; oslo
 (setq calendar-latitude 59.9127)
 (setq calendar-longitude 10.7461)
 
@@ -43,6 +44,10 @@
 ;; beypazari ankara
 (setq calendar-latitude 40.160273)
 (setq calendar-longitude 31.921274)
+
+;; copenhagen
+(setq calendar-latitude 55.66666)
+(setq calendar-longitude 12.55407)
 
 ;; NOTE: DATE = '(M D Y)
 
@@ -93,11 +98,12 @@
 		((eq 'diyanet preset)
 		 (setq awqat-fajr-angle -18.0)
 		 (setq awqat-isha-angle -17.05)
-		 (setq awqat-sunrise-sunset-below-angle -1.66)
-		 (setq awqat-prayer-safety-offsets '(0 -1.0 5.0 4.0 3.0 0.0))
-		 (setq awqat-time-functions (list #'awqat-fajr #'awqat-imsak
+		 (setq awqat-use-angle-calculation nil)
+		 (setq awqat-sunrise-sunset-below-angle -1.50)
+		 (setq awqat-prayer-safety-offsets '(0 0.0 5.0 4.0 0.0 0.0))
+		 (setq awqat-time-functions (list #'awqat-fajr--diyanet #'awqat-imsak
 										  #'awqat-dhuhr #'awqat-asr
-										  #'awqat-maghrib #'awqat-isha)))
+										  #'awqat-maghrib #'awqat-isha--diyanet)))
 		((eq 'isna preset)
 		 (print "isna"))
 		((eq 'egypt preset)
@@ -128,6 +134,28 @@
 									  (awqat-fajr--angle date)
 									(car (awqat-sunrise-sunset-angle date awqat-fajr-angle)))))
 
+(defun awqat-fajr--diyanet (date)
+  "Calculate the isha time on DATE according to diyanet algorithm."
+  (if (< calendar-latitude 45.0)
+	  ;; Run normal isha if lat under 45deg.
+	  (awqat-fajr date)
+	(let* ((sunrise-sunset (awqat-sunrise-sunset date))
+		   (sunrise (caar sunrise-sunset))
+		   (sunset (caadr sunrise-sunset))
+		   (fecri-sadik (caadr (awqat-sunrise-sunset-angle date awqat-fajr-angle)))
+		   (third-portion (+ (/ (mod (- (+ fecri-sadik 24.0) sunset) 24.0) 3) 0.166666)))
+	  (if (> third-portion 1.33333)
+		  (list (- sunrise 1.33333 0.166666) (cadar sunrise-sunset))
+		(list (- sunrise third-portion) (cadar sunrise-sunset))))))
+
+(defun awqat-fajr--angle (date)
+  "Calculates the time of isha for DATE."
+  (let* ((sunrise-sunset (awqat-sunrise-sunset date))
+		 (sunrise (caar sunrise-sunset))
+		 (night-duration (awqat-duration-of-night date))
+		 (fajr-offset (/ (* (abs awqat-fajr-angle) night-duration) 60)))
+	(list (- sunrise fajr-offset) (cadar sunrise-sunset))))
+
 (defun awqat-imsak (date)
   "Calculates the time of imsak (sunrise) for DATE."
   (awqat--apply-safety-time 'imsak (car (awqat-sunrise-sunset date))))
@@ -153,6 +181,19 @@
 									  (awqat-isha--angle date)
 									(cadr (awqat-sunrise-sunset-angle date awqat-isha-angle)))))
 
+(defun awqat-isha--diyanet (date)
+  "Calculate the isha time on DATE according to diyanet algorithm."
+  (if (< calendar-latitude 45.0)
+	  ;; Run normal isha if lat under 45deg.
+	  (awqat-isha date)
+	(let* ((sunrise-sunset (awqat-sunrise-sunset date))
+		   (sunset (caadr sunrise-sunset))
+		   (fecri-sadik (caadr (awqat-sunrise-sunset-angle date awqat-isha-angle)))
+		   (third-portion (/ (mod (- (+ fecri-sadik 24.0) sunset) 24.0) 3)))
+	  (if (> third-portion 1.33333)
+		  (list (+ sunset 1.33333) (cadar sunrise-sunset))
+		(list (+ third-portion sunset) (cadar sunrise-sunset))))))
+
 (defun awqat-isha--angle (date)
   "Calculates the time of isha for DATE using angle approx."
   (if awqat-use-angle-calculation
@@ -163,13 +204,7 @@
 		(list (+ sunset isha-offset) (cadar sunrise-sunset)))
 	nil))
 
-(defun awqat-fajr--angle (date)
-  "Calculates the time of isha for DATE."
-  (let* ((sunrise-sunset (awqat-sunrise-sunset date))
-		 (sunrise (caar sunrise-sunset))
-		 (night-duration (awqat-duration-of-night date))
-		 (fajr-offset (/ (* (abs awqat-fajr-angle) night-duration) 60)))
-	(list (- sunrise fajr-offset) (cadar sunrise-sunset))))
+
 
 (defun awqat--use-angle-method-p (date)
   "Determine if on DATE, the angle method for isha/fajr should be used."
@@ -246,8 +281,6 @@ time zone.  Prayer is a symbol for prayer time."
 
 (defun awqat-sunrise-sunset-angle (date angle)
   "Calculate the sunrise and sunset on given DATE (ex (7 22 2019)) with ANGLE above horizon."
-  ;; TODO: Sometimes if the angle is too extreme this will return nil,
-  ;; maybe solar midnight would be better.
   (let* ((exact-local-noon (solar-exact-local-noon date))
          ;; Get the time from the 2000 epoch.
          (t0 (solar-julian-ut-centuries (car exact-local-noon)))
