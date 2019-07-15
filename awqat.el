@@ -29,25 +29,6 @@
 (require 'solar)
 (require 'calendar)
 
-;;; lat-lon for Berlin
-(setq calendar-latitude 52.439)
-(setq calendar-longitude 13.4364)
-
-;; oslo
-(setq calendar-latitude 59.9127)
-(setq calendar-longitude 10.7461)
-
-;; istanbul
-(setq calendar-latitude 40.94832)
-(setq calendar-longitude 29.161208)
-
-;; beypazari ankara
-(setq calendar-latitude 40.160273)
-(setq calendar-longitude 31.921274)
-
-;; copenhagen
-(setq calendar-latitude 55.66666)
-(setq calendar-longitude 12.55407)
 
 ;; NOTE: DATE = '(M D Y)
 
@@ -68,15 +49,28 @@
 (defun awqat-times-for-day ()
   "Calculate all of the times for current day."
   (interactive)
-  (let ((date (list
+  (let* ((date (list
 			   (string-to-number (format-time-string "%m"))
 			   (string-to-number (format-time-string "%d"))
 			   (string-to-number (format-time-string "%Y"))))
-		(times))
-	(message (format
-			  "%s"
-			  (dolist (f awqat-time-functions times)
-				(setq times (append times (list (awqat-pretty-time (apply f (list date)))))))))))
+		(hour-minute (mapcar #'string-to-number (split-string (format-time-string "%H:%M") ":")))
+		(current-time (+ (car hour-minute) (/ (cadr hour-minute) 60.0)))
+		(times "")
+		(time-remaining))
+	(dolist (f awqat-time-functions times)
+	  (let ((time (apply f (list date))))
+		(setq times (concat times (awqat-pretty-time time
+													 (and (not time-remaining)
+														  (< current-time (car time))
+														  (setq time-remaining
+																(- (car time) current-time))))
+							"  "))))
+	(message "%s   Time remaining> %s"
+			 times
+			 (propertize (format "%d:%02d"
+								 (floor time-remaining)
+								 (* 60 (- time-remaining (floor time-remaining))))
+						 'face (if (< time-remaining 0.5) '(:foreground "red") '())))))
 
 ;;; Application functions
 (defun awqat-use-preset (preset)
@@ -276,39 +270,43 @@ time zone.  Prayer is a symbol for prayer time."
 
 (defun awqat-sunrise-sunset-angle (date angle)
   "Calculate the sunrise and sunset on given DATE (ex (7 22 2019)) with ANGLE above horizon."
-  (let* ((exact-local-noon (solar-exact-local-noon date))
-         ;; Get the time from the 2000 epoch.
-         (t0 (solar-julian-ut-centuries (car exact-local-noon)))
-         ;; Store the sidereal time at Greenwich at midnight of UT time.
-         ;; Find if summer or winter slightly above the equator.
-         (equator-rise-set
-          (progn (setq solar-sidereal-time-greenwich-midnight
-                       (solar-sidereal-time t0))
-                 (solar-sunrise-and-sunset
-                  (list t0 (cadr exact-local-noon))
-                  1.0
-                  (calendar-longitude) 0)))
-         ;; Store the spring/summer information, compute sunrise and
-         ;; sunset (two first components of rise-set).  Length of day
-         ;; is the third component (it is only the difference between
-         ;; sunset and sunrise when there is a sunset and a sunrise)
-         (rise-set
-          (progn
-            (setq solar-northern-spring-or-summer-season
-                  (> (nth 2 equator-rise-set) 12))
-			(solar-sunrise-and-sunset
-             (list t0 (cadr exact-local-noon))
-             (calendar-latitude)
-             (calendar-longitude) angle))) ;; This is the parameter that.
-         (rise-time (car rise-set))
-         (adj-rise (if rise-time (dst-adjust-time date rise-time)))
-         (set-time (cadr rise-set))
-         (adj-set (if set-time (dst-adjust-time date set-time)))
-         (length (nth 2 rise-set)))
-    (list
-     (and rise-time (cdr adj-rise))
-     (and set-time (cdr adj-set))
-     (solar-daylight length))))
+  (let ((res (let* ((exact-local-noon (solar-exact-local-noon date))
+				 ;; Get the time from the 2000 epoch.
+				 (t0 (solar-julian-ut-centuries (car exact-local-noon)))
+				 ;; Store the sidereal time at Greenwich at midnight of UT time.
+				 ;; Find if summer or winter slightly above the equator.
+				 (equator-rise-set
+				  (progn (setq solar-sidereal-time-greenwich-midnight
+							   (solar-sidereal-time t0))
+						 (solar-sunrise-and-sunset
+						  (list t0 (cadr exact-local-noon))
+						  1.0
+						  (calendar-longitude) 0)))
+				 ;; Store the spring/summer information, compute sunrise and
+				 ;; sunset (two first components of rise-set).  Length of day
+				 ;; is the third component (it is only the difference between
+				 ;; sunset and sunrise when there is a sunset and a sunrise)
+				 (rise-set
+				  (progn
+					(setq solar-northern-spring-or-summer-season
+						  (> (nth 2 equator-rise-set) 12))
+					(solar-sunrise-and-sunset
+					 (list t0 (cadr exact-local-noon))
+					 (calendar-latitude)
+					 (calendar-longitude) angle))) ;; This is the parameter that.
+				 (rise-time (car rise-set))
+				 (adj-rise (if rise-time (dst-adjust-time date rise-time)))
+				 (set-time (cadr rise-set))
+				 (adj-set (if set-time (dst-adjust-time date set-time)))
+				 (length (nth 2 rise-set)))
+			(list
+			 (and rise-time (cdr adj-rise))
+			 (and set-time (cdr adj-set))
+			 (solar-daylight length)))))
+	(if (car res)
+		res
+	  (let ((solar-noon (awqat-solar-noon date)))
+		(list solar-noon solar-noon)))))
 
 (defun awqat-duration-of-night (date)
   "Returns the duration from sunset to sunrise for a given date."
@@ -326,11 +324,12 @@ time zone.  Prayer is a symbol for prayer time."
   "Convert X from radians to degrees."
   (/ (* x float-pi) 180))
 
-(defun awqat-pretty-time (time)
-  "Format TIME to human readable form."
-  (if time
-	  (apply 'solar-time-string time)
-	"---"))
+(defun awqat-pretty-time (time &optional color)
+  "Format TIME to human readable form and colored if COLOR is not nil."
+  (let ((pretty-time (if time (apply 'solar-time-string time) "---")))
+	(if color
+		(propertize pretty-time 'face '(:background "yellow"))
+	  pretty-time)))
 
 (provide 'awqat)
 ;;; awqat.el ends here

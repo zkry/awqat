@@ -27,6 +27,26 @@
 ;;; Code:
 (require 'awqat)
 
+;;; lat-lon for Berlin
+;; (setq calendar-latitude 52.439)
+;; (setq calendar-longitude 13.4364)
+
+;; ;; oslo
+;; (setq calendar-latitude 59.9127)
+;; (setq calendar-longitude 10.7461)
+
+;; ;; istanbul
+;; (setq calendar-latitude 40.94832)
+;; (setq calendar-longitude 29.161208)
+
+;; ;; beypazari ankara
+;; (setq calendar-latitude 40.160273)
+;; (setq calendar-longitude 31.921274)
+
+;; ;; copenhagen
+;; (setq calendar-latitude 55.66666)
+;; (setq calendar-longitude 12.55407)
+
 (defconst awqat--test-error 3.0
   "The window of error that time calculations should be in.")
 
@@ -151,9 +171,7 @@ form \"MM-DD-YYYY\" (\"HH:MM\" ...) \"MM-DD-YYYY\" (\"HH:MM\" ...)
 					"09-15-2019" ("04:12" "06:44" "13:12" "16:32" "19:41" "22:02")
 					"10-01-2019" ("05:01" "07:21" "13:07" "15:58" "18:52" "21:04")
 					"11-01-2019" ("05:16" "07:38" "12:01" "13:52" "16:23" "18:37")
-					"12-21-2019" ("06:32" "09:17" "12:15" "13:07" "15:13" "17:49")
-					)
-  )
+					"12-21-2019" ("06:32" "09:17" "12:15" "13:07" "15:13" "17:49")))
 
 (defun awqat--format-times ()
   "Format copied times to elisp syntax."
