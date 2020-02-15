@@ -42,6 +42,8 @@
 ;;; Islamic prayer times settings
 (defvar awqat-fajr-angle -18.0)
 (defvar awqat-isha-angle -17.0)
+(defvar awqat-fajr-before-offset 1.81)
+(defvar awqat-isha-after-sunset 1.333)
 (defvar awqat-use-angle-calculation t)
 (defvar awqat-prayer-safety-offsets (make-list 6 0))
 
@@ -50,21 +52,33 @@
   "Calculate all of the times for current day."
   (interactive)
   (let* ((date (list
-			   (string-to-number (format-time-string "%m"))
-			   (string-to-number (format-time-string "%d"))
-			   (string-to-number (format-time-string "%Y"))))
-		(hour-minute (mapcar #'string-to-number (split-string (format-time-string "%H:%M") ":")))
-		(current-time (+ (car hour-minute) (/ (cadr hour-minute) 60.0)))
-		(times "")
-		(time-remaining))
+				(string-to-number (format-time-string "%m"))
+				(string-to-number (format-time-string "%d"))
+				(string-to-number (format-time-string "%Y"))))
+		 (hour-minute (mapcar #'string-to-number (split-string (format-time-string "%H:%M") ":")))
+		 (current-time (+ (car hour-minute) (/ (cadr hour-minute) 60.0)))
+		 (times "")
+		 (time-remaining)
+		 (earliest-time))
 	(dolist (f awqat-time-functions times)
 	  (let ((time (apply f (list date))))
 		(setq times (concat times (awqat-pretty-time time
-													 (and (not time-remaining)
-														  (< current-time (car time))
-														  (setq time-remaining
-																(- (car time) current-time))))
+													 (progn
+													   (if earliest-time
+										; defer highlighting step to later
+														   (and (not time-remaining)
+																(< current-time (car time))
+																(setq time-remaining
+																	  (- (car time) current-time)))
+														 (setq earliest-time time)
+														 'skip)))
 							"  "))))
+	;; no time remaining -> highlight first time
+	(setq times (concat (if time-remaining
+							(awqat-pretty-time earliest-time)
+						  (setq time-remaining (mod (- (+ 24.0 (car earliest-time)) current-time) 24))
+						  (awqat-pretty-time earliest-time t))
+						times))
 	(message "%s   Time remaining> %s"
 			 times
 			 (propertize (format "%d:%02d"
@@ -88,7 +102,7 @@
 		 (setq awqat-isha-angle -17.05)
 		 (setq awqat-use-angle-calculation nil)
 		 (setq awqat-sunrise-sunset-below-angle -1.5)
-		 (setq awqat-prayer-safety-offsets '(0 -1.0 5.0 4.0 2.0 0.0))
+		 (setq awqat-prayer-safety-offsets '(3.0 -1.0 5.0 4.0 2.0 -3.0))
 		 (setq awqat-time-functions (list #'awqat-fajr--diyanet #'awqat-imsak
 										  #'awqat-dhuhr #'awqat-asr
 										  #'awqat-maghrib #'awqat-isha--diyanet)))
@@ -193,7 +207,9 @@
 		(list (+ sunset isha-offset) (cadar sunrise-sunset)))
 	nil))
 
-
+(defun awqat-isha--after-sunset (date)
+  "Calculates the time of isha for DATE by adding an offset."
+  ())
 
 (defun awqat--use-angle-method-p (date)
   "Determine if on DATE, the angle method for isha/fajr should be used."
@@ -245,7 +261,6 @@ time zone.  Prayer is a symbol for prayer time."
   (let* ((exact-local-noon (solar-exact-local-noon date))
 		 (t0 (solar-julian-ut-centuries (car exact-local-noon)))
 		 (ut (+ 12.0 (cadr exact-local-noon)))
-
 		 (hnoon (solar-horizontal-coordinates (list t0 ut)
 											  (calendar-latitude)
 											  (calendar-longitude) t)))
@@ -324,12 +339,16 @@ time zone.  Prayer is a symbol for prayer time."
   "Convert X from radians to degrees."
   (/ (* x float-pi) 180))
 
-(defun awqat-pretty-time (time &optional color)
-  "Format TIME to human readable form and colored if COLOR is not nil."
-  (let ((pretty-time (if time (apply 'solar-time-string time) "---")))
-	(if color
-		(propertize pretty-time 'face '(:background "yellow"))
-	  pretty-time)))
+(defun awqat-pretty-time (time &optional flag)
+  "Format TIME to human readable form and colored if FLAG is not nil.
+
+If FLAG is 'skip then return empty string."
+  (if (eq flag 'skip)
+	  ""
+	(let ((pretty-time (if time (apply 'solar-time-string time) "---")))
+	  (if flag
+		  (propertize pretty-time 'face '(:background "yellow"))
+		pretty-time))))
 
 (provide 'awqat)
 ;;; awqat.el ends here

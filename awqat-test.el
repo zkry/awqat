@@ -145,9 +145,6 @@ form \"MM-DD-YYYY\" (\"HH:MM\" ...) \"MM-DD-YYYY\" (\"HH:MM\" ...)
 (ert-deftest awqat--time-accuracy ()
   "Test the generated times to ensure accuracy."
   ;; Taken from https://www.muslimpro.com/en/search?coordinates=59.9138688%2C10.752245399999993&country_code=NO&country_name=Norway&city_name=Oslo&date=&convention=MWL
-  (ert-time-deftest "Berlin, Germany" diyanet "CEST"
-					"07-14-2019" ("03:29" "04:53" "13:17" "17:37" "21:32" "22:45")
-					"07-14-2019" ("03:29" "04:53" "13:17" "17:37" "21:32" "22:45"))
   (ert-time-deftest "Beypazarı, Turkey" diyanet "TRT"
 					"07-13-2019" ("03:35" "05:27" "13:03" "17:00" "20:29" "22:13")
 					"08-01-2019" ("04:00" "05:43" "13:04" "16:57" "20:15" "21:50")
