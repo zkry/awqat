@@ -1,6 +1,6 @@
 # Awqat
 
-Awqat is a package to calculate the 5 daily prayer times in Emacs.
+Awqat is a package to calculate the 5 daily Islamic prayer times in Emacs.
 
 ## Installation
 
