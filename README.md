@@ -39,7 +39,7 @@ The following is an example configuration:
 
 ## Viewing the times
 
-By calling `(awqat-times-for-day)` you can see the various times for the day with the time remaining for the next prayer.
+By calling `M-x awqat-times-for-day` you can see the various times for the day with the time remaining for the next prayer.
 
 ## A note on the calculation
 
