@@ -52,7 +52,7 @@ This is not zero as when angle is 0, sun is still visible.")
 (defvar awqat-asr-hanafi t
   "The offset applied for the 6 times.")
 
-(defvar awqat-prayer-safety-offsets (make-list 6 0)
+(defvar awqat-prayer-safety-offsets (make-list 6 0.0)
   "The offset in minutes applied for the 6 times.")
 
 (defvar awqat--prayer-funs
@@ -177,7 +177,7 @@ This is not zero as when angle is 0, sun is still visible.")
   (let* ((offset (nth prayer awqat-prayer-safety-offsets))
 		 (fun (nth prayer awqat--prayer-funs))
 		 (time (apply fun (list date))))
-	(list (+ (car time) (/ offset 60)) (cadr time))))
+	(list (+ (car time) (/ offset 60.0)) (cadr time))))
 
 ;; The following functions can be put into the awqat--prayer-funs list.
 ;; Fajr

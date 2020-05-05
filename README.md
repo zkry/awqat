@@ -4,7 +4,19 @@ Awqat is a package to calculate the 5 daily Islamic prayer times in Emacs.
 
 ## Installation
 
-This package is currently not located on MELPA. To use it you should include the source file awqat.el in your source path.
+This package is currently not located on MELPA. To use it you should include the source file awqat.el in your source path. 
+
+### Installation via Spacemacs
+
+If you are using Spacemacs you can easily install this package by putting the following in the `dotspacemacs-additional-packages`:
+
+```
+dotspacemacs-additional-packages '((awqat :location (recipe
+                                                         :fetcher github
+                                                         :repo "zkry/awqat")))
+```
+
+And in `dotspacemacs/user-config` adding `(require 'awqat)`.
 
 ## Setup
 
@@ -25,13 +37,15 @@ The prayer times can be configured in the following ways:
   - Like for Fajr you can set the angle for calculation with the `awqat-isha-angle` variable. (used in conjunction with the `awqat-use-angle-based-method` function)
   - If using the offset-based method, you can set the hours after sunset via the `awqat-isha-after-sunset` variable. (used in conjunction with the `awqat-use-time-offset-method` function)
 
-You can add a safety offset to all times via the `awqat-prayer-safety-offsets` variable. For example, to have sunrise be one minute sooner, Dhuhr two minutes later, and Maghrib one minute later you can add `(setq awqat-prayer-safety-offsets '(0 -1 2 0 1 0))`.
+You can add a safety offset to all times via the `awqat-prayer-safety-offsets` variable. For example, to have sunrise be one minute sooner, Dhuhr two minutes later, and Maghrib one minute later you can add `(setq awqat-prayer-safety-offsets '(0.0 -1.0 2.0 0.0 1.0 0.0))`.
 
 There are presets with the angles for various organizations. You can call these functions to configure the various variables. The following presets exist: `awqat-set-preset-muslim-pro`, `awqat-set-preset-muslim-world-league`, `awqat-set-preset-karachi-university-of-islamic-sciences`, `awqat-set-preset-umm-al-qura`, `awqat-set-preset-jakim`, `awqat-set-preset-spiritual-administration-of-musilms-russia`, `awqat-set-preset-union-des-organisations-islamiques-de-france`. Please note that these presets **only** configure the angles for Isha and Fajr and may or may not reflect the actual times of the organization.
 
 The following is an example configuration:
 ```lisp
 (require 'awqat)
+(setq calendar-latitude 52.439
+      calendar-longitude 13.436)
 (setq awqat-asr-hanafi nil)
 (setq awqat-fajr-angle -18.0)
 (setq awqat-isha-angle -16.0)
