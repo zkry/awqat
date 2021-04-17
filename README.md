@@ -55,6 +55,44 @@ The following is an example configuration:
 
 By calling `M-x awqat-times-for-day` you can see the various times for the day with the time remaining for the next prayer.
 
+### Viewing times with Diary/Org-Agenda
+
+The times can be added to the diary view or org-agenda view using the diary
+functions.  In your `diary-file`, add the following lines:
+
+```
+%%(awqat-diary-fajr)
+%%(awqat-diary-sunrise)
+%%(awqat-diary-dhuhr)
+%%(awqat-diary-asr)
+%%(awqat-diary-maghrib)
+%%(awqat-diary-isha)
+```
+
+To use times with Org-mode, set `org-agenda-include-diary` to `t`:
+
+```lisp
+(setq org-agenda-include-diary t)
+```
+
+Then in an Org file which is part of `org-agenda-files`, add the following:
+
+```org
+* Prayers
+  :PROPERTIES:
+  :CATEGORY: prayers
+  :END:
+%%(awqat-diary-fajr)
+%%(awqat-diary-sunrise)
+%%(awqat-diary-dhuhr)
+%%(awqat-diary-asr)
+%%(awqat-diary-maghrib)
+%%(awqat-diary-isha)
+```
+
+The above snippets are, of course, examples.  Feel free to modify to your
+liking.
+
 ## A note on the calculation
 
 Please be warned that this package may contain bugs and may not reflect the times of the particular organization that you follow. The calculations for Isha and Fajr for high latitudes can especially be erronious as no special calculation methods have been implemented. The site http://praytimes.org/calculation mentions the *middle of night*, *one-seventh of the night*, and *angle-based* methods for calculating times at higher latitudes. None of these methods are implemented yet.
