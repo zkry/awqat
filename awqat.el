@@ -124,6 +124,10 @@ This is not zero as when angle is 0, sun is still visible.")
   "Set the calculation method to be simmilar to the Union des Organisations Islamiques de France."
   (awqat--preset-with-angles -16.0 -15.0))
 
+(defun awqat-set-preset-isna ()
+  "Set the calculation method to be similar to ISNA."
+  (awqat--preset-with-angles -15.0 -15.0))
+
 (defun awqat--preset-with-angles (fajr isha)
   "Use the standard angle method calculation with FAJR and ISHA angles."
   (setq awqat--prayer-funs (list #'awqat--prayer-fajr
