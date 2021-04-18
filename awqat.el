@@ -64,6 +64,13 @@ This is not zero as when angle is 0, sun is still visible.")
 		#'awqat--prayer-isha)
   "The offset applied for the 6 times.")
 
+(defvar awqat--prayer-names
+  (list "Fajr"
+        "Sunrise"
+        "Dhuhr"
+        "Asr"
+        "Maghrib"
+        "Isha"))
 
 ;;; Pre-configuration functions
 
@@ -173,6 +180,32 @@ This is not zero as when angle is 0, sun is still visible.")
    (string-to-number (format-time-string "%m"))
    (string-to-number (format-time-string "%d"))
    (string-to-number (format-time-string "%Y"))))
+
+(with-suppressed-warnings ((lexical date))
+  (defvar date))
+(defun awqat--diary-prayer (prayer)
+  "Display prayer time for `prayer'."
+  (let ((prayer-time (car (awqat--prayer-time date prayer)))
+        (prayer-name (nth prayer awqat--prayer-names)))
+    (concat prayer-name " " (solar-time-string prayer-time nil))))
+(defun awqat-diary-fajr ()
+  "Diary prayer time for Fajr."
+  (awqat--diary-prayer 0))
+(defun awqat-diary-sunrise ()
+  "Display Sunrise time."
+  (awqat--diary-prayer 1))
+(defun awqat-diary-dhuhr ()
+  "Display Dhuhr time."
+  (awqat--diary-prayer 2))
+(defun awqat-diary-asr ()
+  "Display Asr time."
+  (awqat--diary-prayer 3))
+(defun awqat-diary-maghrib ()
+  "Display maghrib time."
+  (awqat--diary-prayer 4))
+(defun awqat-diary-isha ()
+  "Display Isha time."
+  (awqat--diary-prayer 5))
 
 ;;; Prayer Calculations ------------------------------------------------------------------
 
