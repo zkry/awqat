@@ -35,6 +35,10 @@
 (require 'solar)
 (require 'calendar)
 
+(defgroup awqat nil
+  "Programming game involving tiled WAT and YAML code cells."
+  :prefix "awqat-")
+
 (defvar awqat-fajr-angle -18.15
   "The angle below sunrise used to calculate the time of fajr.")
 
@@ -155,6 +159,25 @@ This is not zero as when angle is 0, sun is still visible.")
 
 ;;; UI/Interactive functions and helpers.
 
+(defun awqat--now ()
+  (let ((h-m (mapcar #'string-to-number (split-string (format-time-string "%H:%M") ":"))))
+    (+ (car h-m) (/ (cadr h-m) 60.0))))
+
+(defun awqat--today ()
+  "Return the current date (used throught the program) in the require format (M D Y)."
+  (list
+   (string-to-number (format-time-string "%m"))
+   (string-to-number (format-time-string "%d"))
+   (string-to-number (format-time-string "%Y"))))
+
+(defun awqat--tomorrow ()
+  "Return the current date (used throught the program) in the require format (M D Y)."
+  (let ((tomorrow (time-add nil (* 60 60 24))))
+    (list
+     (string-to-number (format-time-string "%m" tomorrow))
+     (string-to-number (format-time-string "%d" tomorrow))
+     (string-to-number (format-time-string "%Y" tomorrow)))))
+
 (defun awqat-times-for-day ()
   "Calculate adn display all of the set times for the current day."
   (interactive)
@@ -180,12 +203,25 @@ This is not zero as when angle is 0, sun is still visible.")
                                  (* 60 (- time-remaining (floor time-remaining))))
                          'face (if (< time-remaining 0.5) '(:foreground "red") '())))))
 
-(defun awqat--today ()
-  "Return the current date (used throught the program) in the require format (M D Y)."
-  (list
-   (string-to-number (format-time-string "%m"))
-   (string-to-number (format-time-string "%d"))
-   (string-to-number (format-time-string "%Y"))))
+(defun awqat--times-for-day (&optional day)
+  "Return a list of all the prayer times for today."
+  (let ((day (or day (awqat--today)))
+        (times '()))
+    (dolist (time-idx (number-sequence 0 (1- (length awqat--prayer-funs))))
+      (let ((time (awqat--prayer-time day time-idx)))
+        (push time times)))
+    (nreverse times)))
+
+(defun awqat--next-time ()
+  "Return the next time comming up."
+  (let* ((now (awqat--now))
+         (times (seq-map-indexed (lambda (time idx)
+                                   (append time (list idx)))
+                                 (awqat--times-for-day)))
+         (after-times (seq-filter (lambda (time) (> (car time) now)) times)))
+    (if after-times
+        (car after-times)
+      (append (car (awqat--times-for-day (awqat--tomorrow))) (list 0)))))
 
 (with-suppressed-warnings ((lexical date))
   (defvar date))
@@ -457,6 +493,63 @@ If FLAG is 'skip then return empty string."
       (if flag
           (propertize pretty-time 'face '(:background "yellow"))
         pretty-time))))
+
+
+;;; awqat-display-prayer-time-mode
+
+(defconst awqat-mode-line-string nil)
+(defvar awqat-update-timer nil)
+
+(defvar awqat-warning-duration 0.75)
+(defvar awqat-danger-duration 0.33)
+
+(defface awqat-warning-face
+  '((t (:inherit warning)))
+  "Face used to show a somewhat short duration of time."
+  :group 'awqat)
+
+(defface awqat-danger-face
+  '((t (:inherit error)))
+  "Face used to show a very short duration of time."
+  :group 'awqat)
+
+(defun awqat--get-face-from-duration (duration)
+  (cond
+   ((< duration awqat-danger-duration) 'awqat-danger-face)
+   ((< duration awqat-warning-duration) 'awqat-warning-face)
+   (t nil)))
+
+(defun awqat-update ()
+  (let ((next-time (awqat--next-time)))
+    (seq-let (time _ idx) next-time
+      (let* ((name (nth idx awqat--prayer-names))
+             (time-remaining (mod (+ (- time (awqat--now)) 24.0) 24.0))
+             (h (floor time-remaining))
+             (m (floor (* (mod time-remaining 1) 60)))
+             (face (awqat--get-face-from-duration time-remaining))
+             (message (format "﴾%dh%dm>%s﴿ " h m name))
+             (len (length message)))
+        (add-face-text-property 0 len face t message)
+        (setq awqat-mode-line-string message)))
+    (force-mode-line-update t)))
+
+(defun awqat-update-handler ()
+  (awqat-update)
+  (sit-for 0))
+
+(define-minor-mode awqat-display-prayer-time-mode
+  "Toggle prayer time status display in mode line."
+  :global t
+  (setq awqat-mode-line-string "")
+  (or global-mode-string (setq global-mode-string '("")))
+  (and awqat-update-timer (cancel-timer awqat-update-timer))
+  (if (not awqat-display-prayer-time-mode)
+      (setq global-mode-string
+            (delq 'awqat-mode-line-string global-mode-string))
+    (add-to-list 'global-mode-string 'awqat-mode-line-string t)
+    (setq awqat-update-timer (run-at-time nil 5 #'awqat-update-handler))
+    (awqat-update)))
+
 
 (provide 'awqat)
 ;;; awqat2.el ends here
