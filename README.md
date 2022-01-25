@@ -4,7 +4,7 @@ Awqat is a package to calculate the 5 daily Islamic prayer times in Emacs.
 
 ## Installation
 
-This package is currently not located on MELPA. To use it you should include the source file awqat.el in your source path. 
+This package is currently not located on MELPA. To use it you should include the source file awqat.el in your source path.
 
 ### Installation via Spacemacs
 
@@ -92,6 +92,11 @@ Then in an Org file which is part of `org-agenda-files`, add the following:
 
 The above snippets are, of course, examples.  Feel free to modify to your
 liking.
+
+## awqat-display-prayer-time-mode
+
+By running the command `awqat-display-prayer-time-mode` you can view
+the upcoming prayer time in the modeline which is updated in real time.
 
 ## A note on the calculation
 
