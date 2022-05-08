@@ -141,6 +141,10 @@ This is not zero as when angle is 0, sun is still visible.")
   "Use the calculation method defined by the Majlis Ugama Islam Singapura."
   (awqat--preset-with-angles -20.0 -18.0))
 
+(defun awqat-set-preset-diyanet-turkey ()
+  "Use the calculation method defined by the Directorate of Religious Affairs, Turkey (Diyanet İşleri Başkanlığı)."
+  (awqat--preset-with-angles -18.0 -17.0))
+
 (defun awqat-set-preset-jakim ()
   "Use the calculation method defined by the Department of Islamic Development Malaysia (JAKIM)."
   (awqat--preset-with-angles -20.0 -18.0))
