@@ -137,9 +137,9 @@ This is not zero as when angle is 0, sun is still visible.")
   "Set the calculation method to be simmilar to the SAMR."
   (awqat--preset-with-angles -16.0 -15.0))
 
-(defun awqat-set-preset-union-des-organisations-islamiques-de-france ()
-  "Set the calculation method to be simmilar to the Union des Organisations Islamiques de France."
-  (awqat--preset-with-angles -16.0 -15.0))
+(defun awqat-set-preset-french-muslims ()
+  "Set the calculation method to be simmilar to the French Muslims (former: Union des Organisations Islamiques de France)."
+  (awqat--preset-with-angles -12.0 -12.0))
 
 (defun awqat-set-preset-isna ()
   "Set the calculation method to be similar to ISNA."
