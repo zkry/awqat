@@ -114,35 +114,35 @@ This is not zero as when angle is 0, sun is still visible.")
   (setq awqat-isha-angle -13.94))
 
 (defun awqat-set-preset-muslim-pro ()
-  "Set the calculation method to be simmilar to the Muslim Pro app."
+  "Use the calculation method defined by the Muslim Pro app."
   (awqat--preset-with-angles -18.13 -16.3))
 
 (defun awqat-set-preset-muslim-world-league ()
-  "Set the calculation method to be simmilar to the muslim world league."
+  "Use the calculation method defined by the Muslim World League."
   (awqat--preset-with-angles -18.0 -17))
 
 (defun awqat-set-preset-karachi-university-of-islamic-sciences ()
-  "Set the calculation method to be simmilar to the karachi university of islamic sciences."
+  "Use the calculation method defined by the Karachi University of Islamic Sciences (KUIS)."
   (awqat--preset-with-angles -18.0 -18.0))
 
 (defun awqat-set-preset-umm-al-qura ()
-  "Set the calculation method to be simmilar to umm al qura."
+  "Use the calculation method defined by Umm al-Qura University, Makkah."
   (awqat--preset-with-angles -18.5 -19.0))
 
 (defun awqat-set-preset-jakim ()
-  "Set the calculation method to be simmilar to JAKIM."
+  "Use the calculation method defined by the Department of Islamic Development Malaysia (JAKIM)."
   (awqat--preset-with-angles -20.0 -18.0))
 
-(defun awqat-set-preset-spiritual-administration-of-musilms-russia ()
-  "Set the calculation method to be simmilar to the SAMR."
+(defun awqat-set-preset-spiritual-administration-of-muslims-russia ()
+  "Use the calculation method defined by the Spiritual Administration of Muslims, Russia (SAMR)."
   (awqat--preset-with-angles -16.0 -15.0))
 
 (defun awqat-set-preset-french-muslims ()
-  "Set the calculation method to be simmilar to the French Muslims (former: Union des Organisations Islamiques de France)."
+  "Use the calculation method defined by the French Muslims (former: Union des Organisations Islamiques de France)."
   (awqat--preset-with-angles -12.0 -12.0))
 
 (defun awqat-set-preset-isna ()
-  "Set the calculation method to be similar to ISNA."
+  "Use the calculation method defined by the Islamic Society of North America (ISNA)."
   (awqat--preset-with-angles -15.0 -15.0))
 
 (defun awqat--preset-with-angles (fajr isha)
