@@ -137,6 +137,10 @@ This is not zero as when angle is 0, sun is still visible.")
   "Use the calculation method used in Kuwait."
   (awqat--preset-with-angles -18.0 -17.5))
 
+(defun awqat-set-preset-singapore ()
+  "Use the calculation method defined by the Majlis Ugama Islam Singapura."
+  (awqat--preset-with-angles -20.0 -18.0))
+
 (defun awqat-set-preset-jakim ()
   "Use the calculation method defined by the Department of Islamic Development Malaysia (JAKIM)."
   (awqat--preset-with-angles -20.0 -18.0))
