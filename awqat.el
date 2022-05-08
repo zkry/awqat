@@ -129,6 +129,10 @@ This is not zero as when angle is 0, sun is still visible.")
   "Use the calculation method defined by Umm al-Qura University, Makkah."
   (awqat--preset-with-angles -18.5 -19.0))
 
+(defun awqat-set-preset-egyptian-general-authority-of-survey ()
+  "Use the calculation method defined by the Egyptian General Authority of Survey."
+  (awqat--preset-with-angles -19.5 -17.5))
+
 (defun awqat-set-preset-jakim ()
   "Use the calculation method defined by the Department of Islamic Development Malaysia (JAKIM)."
   (awqat--preset-with-angles -20.0 -18.0))
