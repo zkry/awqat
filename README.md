@@ -39,7 +39,24 @@ The prayer times can be configured in the following ways:
 
 You can add a safety offset to all times via the `awqat-prayer-safety-offsets` variable. For example, to have sunrise be one minute sooner, Dhuhr two minutes later, and Maghrib one minute later you can add `(setq awqat-prayer-safety-offsets '(0.0 -1.0 2.0 0.0 1.0 0.0))`.
 
-There are presets with the angles for various organizations. You can call these functions to configure the various variables. The following presets exist: `awqat-set-preset-muslim-pro`, `awqat-set-preset-muslim-world-league`, `awqat-set-preset-karachi-university-of-islamic-sciences`, `awqat-set-preset-umm-al-qura`, `awqat-set-preset-jakim`, `awqat-set-preset-spiritual-administration-of-musilms-russia`, `awqat-set-preset-union-des-organisations-islamiques-de-france`, `awqat-set-preset-isna`. Please note that these presets **only** configure the angles for Isha and Fajr and may or may not reflect the actual times of the organization.
+There are presets with the angles for various organizations. You can call these
+functions to configure the various variables. The following presets exist:
+ 
+- `awqat-set-preset-muslim-pro`
+- `awqat-set-preset-muslim-world-league`
+- `awqat-set-preset-karachi-university-of-islamic-sciences`
+- `awqat-set-preset-umm-al-qura`
+- `awqat-set-preset-jakim`
+- `awqat-set-preset-spiritual-administration-of-musilms-russia`
+- `awqat-set-preset-french-muslims`
+- `awqat-set-preset-isna`
+- `awqat-set-preset-egyptian-general-authority-of-survey`
+- `awqat-set-preset-kuwait`
+- `awqat-set-preset-singapore`
+- `awqat-set-preset-diyanet-turkey`
+- `awqat-set-preset-uae`
+
+Please note that these presets (except `awqat-set-preset-umm-al-qura`) **only** configure the angles for Isha and Fajr and may or may not reflect the actual times of the organization.
 
 The following is an example configuration:
 ```lisp
