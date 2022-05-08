@@ -34,6 +34,12 @@
 
 (require 'solar)
 (require 'calendar)
+(require 'cal-islam)
+
+(defun calendar-islamic-from-gregorian (&optional date)
+  (calendar-islamic-from-absolute
+   (calendar-absolute-from-gregorian
+    (or date (calendar-current-date)))))
 
 (defgroup awqat nil
   "Programming game involving tiled WAT and YAML code cells."
@@ -127,7 +133,18 @@ This is not zero as when angle is 0, sun is still visible.")
 
 (defun awqat-set-preset-umm-al-qura ()
   "Use the calculation method defined by Umm al-Qura University, Makkah."
-  (awqat--preset-with-angles -18.5 -19.0))
+  (setq awqat--prayer-funs (list #'awqat--prayer-fajr
+                                 #'awqat--prayer-sunrise
+                                 #'awqat--prayer-dhuhr
+                                 #'awqat--prayer-asr
+                                 #'awqat--prayer-maghrib
+                                 (lambda (date)
+                                   (let ((maghrib-time (awqat--prayer-maghrib date))
+                                         (ramadan-p (eq 9 (car (calendar-islamic-from-gregorian)))))
+                                     (list (+ (car maghrib-time) (if ramadan-p 2.0 1.5))
+                                           (cadr maghrib-time))))))
+  (setq awqat-fajr-angle -18.5)
+  (setq awqat-isha-angle nil))
 
 (defun awqat-set-preset-egyptian-general-authority-of-survey ()
   "Use the calculation method defined by the Egyptian General Authority of Survey."
