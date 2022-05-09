@@ -35,6 +35,7 @@
 (require 'solar)
 (require 'calendar)
 (require 'cal-islam)
+(require 's)
 
 (defun calendar-islamic-from-gregorian (&optional date)
   (calendar-islamic-from-absolute
@@ -607,6 +608,9 @@ If FLAG is 'skip then return empty string."
 (defvar awqat-warning-duration 0.75)
 (defvar awqat-danger-duration 0.33)
 
+(defvar awqat-mode-line-format
+  "﴾${hours}h${minutes}m>${prayer}﴿ ")
+
 (defface awqat-warning-face
   '((t (:inherit warning)))
   "Face used to show a somewhat short duration of time."
@@ -631,7 +635,7 @@ If FLAG is 'skip then return empty string."
              (h (floor time-remaining))
              (m (floor (* (mod time-remaining 1) 60)))
              (face (awqat--get-face-from-duration time-remaining))
-             (message (format "﴾%dh%dm>%s﴿ " h m name))
+             (message (s-format awqat-mode-line-format 'aget (list (cons "prayer" name) (cons "hours" h) (cons "minutes" m))))
              (len (length message)))
         (add-face-text-property 0 len face t message)
         (setq awqat-mode-line-string message)))
