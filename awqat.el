@@ -193,6 +193,17 @@ This is not zero as when angle is 0, sun is still visible.")
   (setq awqat-fajr-angle fajr)
   (setq awqat-isha-angle isha))
 
+(defun awqat-set-preset-midnight ()
+  "Use the calculation method used in higher latitudes (Midnight method)."
+  (setq awqat--prayer-funs (list #'awqat--prayer-fajr-midnight
+                                 #'awqat--prayer-sunrise
+                                 #'awqat--prayer-dhuhr
+                                 #'awqat--prayer-asr
+                                 #'awqat--prayer-maghrib
+                                 #'awqat--prayer-isha-midnight))
+  (setq awqat-fajr-angle nil)
+  (setq awqat-isha-angle nil))
+
 
 ;;; UI/Interactive functions and helpers.
 
@@ -295,6 +306,18 @@ This is not zero as when angle is 0, sun is still visible.")
          (time (apply fun (list date))))
     (list (+ (car time) (/ offset 60.0)) (cadr time))))
 
+(defun awqat--prayer-fajr-from-sunrise (date offset)
+  "Calculate the Fajr time for a given DATE, based on a OFFSET from sunrise."
+  (let ((sunrise-time (awqat--prayer-sunrise date)))
+    (list (- (car sunrise-time) offset)
+          (cadr sunrise-time))))
+
+(defun awqat--prayer-isha-from-sunset (date offset)
+  "Calculate the Isha time for a given DATE, based on a OFFSET from sunset (Maghrib)."
+  (let ((maghrib-time (awqat--prayer-maghrib date)))
+    (list (+ (car maghrib-time) offset)
+          (cadr maghrib-time))))
+
 ;; The following functions can be put into the awqat--prayer-funs list.
 ;; Fajr
 
@@ -329,6 +352,16 @@ This is not zero as when angle is 0, sun is still visible.")
         (timezone (awqat--sunset date)))
     (list (- sunrise awqat-fajr-before-offset)
           timezone)))
+
+(defun awqat--prayer-fajr-midnight (date)
+  "Calculate the time of fajr for a given DATE.
+The midnight method is an approximation used in higher latitudes during the abnormal period.
+It defines the Isha and Fajr times to be the same, starting at the midnight between sunset and sunrise."
+  (when (< -48.5 calendar-latitude 48.5)
+    (warn "This method should only be used in latitudes beyond 48.5°N and 48.5°S."))
+
+  (let ((offset (/ (awqat-duration-of-night date) 2.0)))
+    (awqat--prayer-fajr-from-sunrise date offset)))
 
 ;; Sunrise
 
@@ -394,6 +427,12 @@ If `awqat-asr-hanafi' is non-nil, use double the length of noon shadow."
         (timezone (awqat--sunset date)))
     (list (+ sunset awqat-isha-after-sunset)
           timezone)))
+
+(defun awqat--prayer-isha-midnight (date)
+  "Calculate the time of isha for a given DATE.
+The midnight method is an approximation used in higher latitudes during the abnormal period.
+It defines the Isha and Fajr times to be the same, starting at the midnight between sunset and sunrise."
+  (awqat--prayer-fajr-midnight date))
 
 ;;; Time Calculations --------------------------------------------------------------------
 
