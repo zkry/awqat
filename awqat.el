@@ -204,6 +204,16 @@ This is not zero as when angle is 0, sun is still visible.")
   (setq awqat-fajr-angle nil)
   (setq awqat-isha-angle nil))
 
+(defun awqat-set-preset-one-seventh-of-night ()
+  "Use the calculation method used in higher latitudes (One-seventh of night method)."
+  (setq awqat--prayer-funs (list #'awqat--prayer-fajr-one-seventh-of-night
+                                 #'awqat--prayer-sunrise
+                                 #'awqat--prayer-dhuhr
+                                 #'awqat--prayer-asr
+                                 #'awqat--prayer-maghrib
+                                 #'awqat--prayer-isha-one-seventh-of-night))
+  (setq awqat-fajr-angle nil)
+  (setq awqat-isha-angle nil))
 
 ;;; UI/Interactive functions and helpers.
 
@@ -353,6 +363,15 @@ This is not zero as when angle is 0, sun is still visible.")
     (list (- sunrise awqat-fajr-before-offset)
           timezone)))
 
+(defun awqat--prayer-fajr-one-seventh-of-night (date)
+  "Calculate the time of fajr for a given DATE.
+The one-seventh of night method is an approximation used in higher latitudes during the abnormal period."
+  (when (< -48.5 calendar-latitude 48.5)
+    (warn "This method should only be used in latitudes beyond 48.5°N and 48.5°S."))
+
+  (let ((offset (/ (awqat-duration-of-night date) 7.0)))
+    (awqat--prayer-fajr-from-sunrise date offset)))
+
 (defun awqat--prayer-fajr-midnight (date)
   "Calculate the time of fajr for a given DATE.
 The midnight method is an approximation used in higher latitudes during the abnormal period.
@@ -433,6 +452,15 @@ If `awqat-asr-hanafi' is non-nil, use double the length of noon shadow."
 The midnight method is an approximation used in higher latitudes during the abnormal period.
 It defines the Isha and Fajr times to be the same, starting at the midnight between sunset and sunrise."
   (awqat--prayer-fajr-midnight date))
+
+(defun awqat--prayer-isha-one-seventh-of-night (date)
+  "Return the Isha time for a given DATE.
+The one-seventh of night method is an approximation used in higher latitudes during the abnormal period."
+  (when (< -48.5 calendar-latitude 48.5)
+    (warn "This method should only be used in latitudes beyond 48.5°N and 48.5°S."))
+
+  (let ((offset (/ (awqat-duration-of-night date) 7.0)))
+    (awqat--prayer-isha-from-sunset date offset)))
 
 ;;; Time Calculations --------------------------------------------------------------------
 
