@@ -40,43 +40,81 @@
 (require 's)
 
 (defgroup awqat nil
-  "Programming game involving tiled WAT and YAML code cells."
-  :prefix "awqat-")
+  "A package to calculate the five daily Islamic prayer times in Emacs."
+  :prefix "awqat-"
+  :group 'awqat)
 
-(defvar awqat-fajr-angle -18.15
-  "The angle below sunrise used to calculate the time of fajr.")
+(defcustom awqat-fajr-angle -18.0
+  "The Fajr zenith angle offset (in degrees) below horizon.
 
-(defvar awqat-isha-angle -13.94
-  "The angle below sunset used to calculate the time of isha.")
+Applicable when calculating Fajr in angle-based approaches.
 
-(defvar awqat-fajr-before-offset 1.81
-  "The time in hours before sunrise the Fajr prayer comes in.
+The value of this parameter changes from an approach to another,
+it is determined by astronomical observation and
+religious jurisprudence (al-Fiqh).
 
-This is applicable only when fajr offset is selected.")
+It can also differ from a geographical region to anther.
 
-(defvar awqat-isha-after-sunset 1.333
-  "The time in hours after sunset the Isha prayer comes in.
+Prefer using using predefined presets suitable for your geographic area."
+  :type 'float)
 
-This is applicable only when isaha offset is selected.")
+(defcustom awqat-isha-angle -17.0
+  "The Isha zenith angle offset (in degrees) below horizon.
 
-(defvar awqat-sunrise-sunset-below-angle -1.66
-  "The angle used for determining the sunrise and sunset.
-This is not zero as when angle is 0, sun is still visible.")
+Applicable when calculating Isha in angle-based approaches.
 
-(defvar awqat-asr-hanafi t
-  "The offset applied for the 6 times.")
+The value of this parameter changes from an approach to another,
+it is determined by astronomical observation,
+and religious jurisprudence (al-Fiqh).
 
-(defvar awqat-prayer-safety-offsets (make-list 6 0.0)
-  "The offset in minutes applied for the 6 times.")
+It can also differ from a geographical region to anther.
 
-(defvar awqat--prayer-funs
+Prefer using using predefined presets suitable for your geographic area."
+  :type 'float)
+
+(defcustom awqat-fajr-before-sunrise-offset 1.81
+  "The Fajr time offset (in hours) before sunrise.
+
+This is applicable only when calculating Fajr offset-based approaches."
+  :type 'float)
+
+(defcustom awqat-isha-after-sunset-offset 1.333
+  "The Fajr time offset (in hours) after sunset.
+
+This is applicable only when calculating Isha offset-based approaches."
+  :type 'float)
+
+(defcustom awqat-sunrise-sunset-below-angle -0.833
+  "The sunrise/sunset zenith angle offset below horizon.
+
+Used to determine the sunrise and sunset (Maghreb).
+A zero value corresponds to the sun being at zenith=90°,
+which means that the sun circle is still visible.
+The apparent radius of the sun at the horizon is 16 arcminutes,
+and the average refraction is known to be 34 arcminutes,
+which gives an offset of 50 arcminutes, hence the 0.833° value."
+  :type 'float)
+
+(defcustom awqat-asr-hanafi nil
+  "Use the Hanafi jurisprudence (al-Fiqh al-Hanafi) for Asr time.
+
+Default value is 'nil', corresponding to the consensus opinion (al-Jomhor),
+comprising the Maliki, Shafii, and Hambali schools of thought."
+  :type 'boolean)
+
+(defcustom awqat-prayer-safety-offsets (make-list 6 0.0)
+  "The offset in minutes applied for the 6 times."
+  :type 'list)
+
+(defcustom awqat--prayer-funs
   (list #'awqat--prayer-fajr
         #'awqat--prayer-sunrise
         #'awqat--prayer-dhuhr
         #'awqat--prayer-asr
         #'awqat--prayer-maghrib
         #'awqat--prayer-isha)
-  "The offset applied for the 6 times.")
+  "The functions used to calculate each time, a list of 6 elements."
+  :type 'list)
 
 (defvar awqat--prayer-names
   (list "Fajr"
@@ -84,12 +122,13 @@ This is not zero as when angle is 0, sun is still visible.")
         "Dhuhr"
         "Asr"
         "Maghrib"
-        "Isha"))
+        "Isha")
+  "Names of the six times.")
 
-;;; Pre-configuration functions
+;;; Preconfigured presets
 
 (defun awqat-use-angle-based-method ()
-  "Set the calculation for isha and fajr to be angle based."
+  "Set the calculation for Isha and Fajr to be angle based."
   (setq awqat--prayer-funs (list #'awqat--prayer-fajr
                                  #'awqat--prayer-sunrise
                                  #'awqat--prayer-dhuhr
@@ -98,7 +137,7 @@ This is not zero as when angle is 0, sun is still visible.")
                                  #'awqat--prayer-isha)))
 
 (defun awqat-use-time-offset-method ()
-  "Set the calculation for isha and fajr to be hours before/after based."
+  "Set the calculation for Isha and Fajr to be hours before/after based."
   (setq awqat--prayer-funs (list #'awqat--prayer-fajr-offset
                                  #'awqat--prayer-sunrise
                                  #'awqat--prayer-dhuhr
@@ -107,7 +146,7 @@ This is not zero as when angle is 0, sun is still visible.")
                                  #'awqat--prayer-isha-offset)))
 
 (defun awqat-set-preset-diyanet ()
-  "Set the calculation method to be simmilar to the Muslim Pro app."
+  "Set the calculation method to be similar to the Muslim Pro app."
   (setq awqat--prayer-funs (list #'awqat--prayer-fajr
                                  #'awqat--prayer-sunrise
                                  #'awqat--prayer-dhuhr
@@ -123,7 +162,7 @@ This is not zero as when angle is 0, sun is still visible.")
 
 (defun awqat-set-preset-muslim-world-league ()
   "Use the calculation method defined by the Muslim World League."
-  (awqat--preset-with-angles -18.0 -17))
+  (awqat--preset-with-angles -18.0 -17.0))
 
 (defun awqat-set-preset-karachi-university-of-islamic-sciences ()
   "Use the calculation method defined by the Karachi University of Islamic Sciences (KUIS)."
@@ -180,17 +219,6 @@ This is not zero as when angle is 0, sun is still visible.")
   "Use the calculation method defined by the Islamic Society of North America (ISNA)."
   (awqat--preset-with-angles -15.0 -15.0))
 
-(defun awqat--preset-with-angles (fajr isha)
-  "Use the standard angle method calculation with FAJR and ISHA angles."
-  (setq awqat--prayer-funs (list #'awqat--prayer-fajr
-                                 #'awqat--prayer-sunrise
-                                 #'awqat--prayer-dhuhr
-                                 #'awqat--prayer-asr
-                                 #'awqat--prayer-maghrib
-                                 #'awqat--prayer-isha))
-  (setq awqat-fajr-angle fajr)
-  (setq awqat-isha-angle isha))
-
 (defun awqat-set-preset-midnight ()
   "Use the calculation method used in higher latitudes (Midnight method)."
   (setq awqat--prayer-funs (list #'awqat--prayer-fajr-midnight
@@ -213,6 +241,19 @@ This is not zero as when angle is 0, sun is still visible.")
   (setq awqat-fajr-angle nil)
   (setq awqat-isha-angle nil))
 
+;;; Presets helper functions
+
+(defun awqat--preset-with-angles (fajr isha)
+  "Use the standard angle method calculation with FAJR and ISHA angles."
+  (setq awqat--prayer-funs (list #'awqat--prayer-fajr
+                                 #'awqat--prayer-sunrise
+                                 #'awqat--prayer-dhuhr
+                                 #'awqat--prayer-asr
+                                 #'awqat--prayer-maghrib
+                                 #'awqat--prayer-isha))
+  (setq awqat-fajr-angle fajr)
+  (setq awqat-isha-angle isha))
+
 ;;; UI/Interactive functions and helpers.
 
 (defun awqat--now ()
@@ -220,14 +261,14 @@ This is not zero as when angle is 0, sun is still visible.")
     (+ (car h-m) (/ (cadr h-m) 60.0))))
 
 (defun awqat--today ()
-  "Return the current date (used throught the program) in the require format (M D Y)."
+  "Return today's date in the format (M D Y)."
   (list
    (string-to-number (format-time-string "%m"))
    (string-to-number (format-time-string "%d"))
    (string-to-number (format-time-string "%Y"))))
 
 (defun awqat--tomorrow ()
-  "Return the current date (used throught the program) in the require format (M D Y)."
+  "Return tommorow's date in the format (M D Y)."
   (let ((tomorrow (time-add nil (* 60 60 24))))
     (list
      (string-to-number (format-time-string "%m" tomorrow))
@@ -235,7 +276,7 @@ This is not zero as when angle is 0, sun is still visible.")
      (string-to-number (format-time-string "%Y" tomorrow)))))
 
 (defun awqat-times-for-day ()
-  "Calculate adn display all of the set times for the current day."
+  "Calculate and display all prayer times for today."
   (interactive)
   (let* ((today (awqat--today))
          (h-m (mapcar #'string-to-number (split-string (format-time-string "%H:%M") ":")))
@@ -260,7 +301,8 @@ This is not zero as when angle is 0, sun is still visible.")
                          'face (if (< time-remaining 0.5) '(:foreground "red") '())))))
 
 (defun awqat--times-for-day (&optional day)
-  "Return a list of all the prayer times for today."
+  "Return a list of all the prayer times for a given DAY.
+Or for today if no DAY is provided."
   (let ((day (or day (awqat--today)))
         (times '()))
     (dolist (time-idx (number-sequence 0 (1- (length awqat--prayer-funs))))
@@ -358,7 +400,7 @@ This is not zero as when angle is 0, sun is still visible.")
   "Calculate the time of fajr based on fixed time for given DATE."
   (let ((sunrise (awqat--sunset date))
         (timezone (awqat--sunset date)))
-    (list (- sunrise awqat-fajr-before-offset)
+    (list (- sunrise awqat-fajr-before-sunrise-offset)
           timezone)))
 
 (defun awqat--prayer-fajr-one-seventh-of-night (date)
@@ -442,7 +484,7 @@ If `awqat-asr-hanafi' is non-nil, use double the length of noon shadow."
   "Calculate the time of fajr based on fixed time for given DATE."
   (let ((sunset (awqat--sunset date))
         (timezone (awqat--sunset date)))
-    (list (+ sunset awqat-isha-after-sunset)
+    (list (+ sunset awqat-isha-after-sunset-offset)
           timezone)))
 
 (defun awqat--prayer-isha-midnight (date)
@@ -609,11 +651,19 @@ If FLAG is 'skip then return empty string."
 (defconst awqat-mode-line-string nil)
 (defvar awqat-update-timer nil)
 
-(defvar awqat-warning-duration 0.75)
-(defvar awqat-danger-duration 0.33)
+(defcustom awqat-warning-duration 0.75
+  "Duration to next prayer, for 'awqat-display-prayer-time-mode' to show a warning."
+  :type 'float)
 
-(defvar awqat-mode-line-format
-  "﴾${hours}h${minutes}m>${prayer}﴿ ")
+(defcustom awqat-danger-duration 0.33
+  "Duration to next prayer, for 'awqat-display-prayer-time-mode' to show a danger."
+  :type 'float)
+
+(defcustom awqat-mode-line-format "﴾${hours}h${minutes}m>${prayer}﴿ "
+  "Formatting string to use in mode-line.
+Use ${prayer} to refer to the next prayer name,
+and ${hours} and ${minutes} to refer to the remaining time."
+  :type 'str)
 
 (defface awqat-warning-face
   '((t (:inherit warning)))
