@@ -4,8 +4,8 @@
 
 ;; Package-Requires: ((emacs "27.1"))
 ;; Author: Zachary Romero <zacromero@posteo.net>
-;; Version: 0.1.0
 ;; Contributor: Abdelhak Bougouffa <abdelhak.bougouffa@universite-paris-saclay.fr>
+;; Version: 0.2.0
 ;; Homepage: http://github.com/zkry/
 
 ;; This file is NOT part of GNU Emacs.
@@ -197,6 +197,10 @@ comprising the Maliki, Shafii, and Hambali schools of thought."
 
 (defun awqat-set-preset-diyanet-turkey ()
   "Use the calculation method defined by the Directorate of Religious Affairs, Turkey (Diyanet İşleri Başkanlığı)."
+  (awqat--preset-with-angles -18.0 -17.0))
+
+(defun awqat-set-preset-algeria ()
+  "Use the calculation method defined by the Ministry of Religious Affairs and Wakfs, Algeria."
   (awqat--preset-with-angles -18.0 -17.0))
 
 (defun awqat-set-preset-uae ()
