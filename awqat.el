@@ -1,9 +1,11 @@
 ;;; awqat.el --- Calculations of positions of the sun -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2019 Zachary Romero
+;; Copyright (C) 2019-2022 Zachary Romero
 
+;; Package-Requires: ((emacs "27.1"))
 ;; Author: Zachary Romero <zacromero@posteo.net>
 ;; Version: 0.1.0
+;; Contributor: Abdelhak Bougouffa <abdelhak.bougouffa@universite-paris-saclay.fr>
 ;; Homepage: http://github.com/zkry/
 
 ;; This file is NOT part of GNU Emacs.
@@ -645,6 +647,7 @@ If FLAG is 'skip then return empty string."
   (awqat-update)
   (sit-for 0))
 
+;;;###autoload
 (define-minor-mode awqat-display-prayer-time-mode
   "Toggle prayer time status display in mode line."
   :global t
@@ -660,4 +663,4 @@ If FLAG is 'skip then return empty string."
 
 
 (provide 'awqat)
-;;; awqat2.el ends here
+;;; awqat.el ends here
