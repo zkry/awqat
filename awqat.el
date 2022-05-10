@@ -39,11 +39,6 @@
 (require 'cal-islam)
 (require 's)
 
-(defun calendar-islamic-from-gregorian (&optional date)
-  (calendar-islamic-from-absolute
-   (calendar-absolute-from-gregorian
-    (or date (calendar-current-date)))))
-
 (defgroup awqat nil
   "Programming game involving tiled WAT and YAML code cells."
   :prefix "awqat-")
@@ -143,7 +138,7 @@ This is not zero as when angle is 0, sun is still visible.")
                                  #'awqat--prayer-maghrib
                                  (lambda (date)
                                    (let ((maghrib-time (awqat--prayer-maghrib date))
-                                         (ramadan-p (eq 9 (car (calendar-islamic-from-gregorian)))))
+                                         (ramadan-p (eq 9 (car (awqat--islamic-from-gregorian)))))
                                      (list (+ (car maghrib-time) (if ramadan-p 2.0 1.5))
                                            (cadr maghrib-time))))))
   (setq awqat-fajr-angle -18.5)
@@ -601,6 +596,13 @@ If FLAG is 'skip then return empty string."
           (propertize pretty-time 'face '(:background "yellow"))
         pretty-time))))
 
+
+;;; Misc
+
+(defun awqat--islamic-from-gregorian (&optional date)
+  "Get Islamic Hijri date from a Gregorian DATE."
+  (calendar-islamic-from-absolute (calendar-absolute-from-gregorian
+                                   (or date (calendar-current-date)))))
 
 ;;; awqat-display-prayer-time-mode
 
