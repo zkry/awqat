@@ -140,7 +140,6 @@ presets are implemented:
 - `awqat-set-preset-morocco`
 - `awqat-set-preset-taiwan`
 - `awqat-set-preset-singapore`
-- `awqat-set-preset-diyanet-turkey`
 - `awqat-set-preset-uae`
 - `awqat-set-preset-midnight`
 - `awqat-set-preset-one-seventh-of-night`

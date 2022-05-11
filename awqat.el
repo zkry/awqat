@@ -214,10 +214,6 @@ comprising the Maliki, Shafii, and Hambali schools of thought."
   "Use the calculation method defined by the Majlis Ugama Islam Singapura."
   (awqat--preset-with-angles -20.0 -18.0))
 
-(defun awqat-set-preset-diyanet-turkey ()
-  "Use the calculation method defined by the Directorate of Religious Affairs, Turkey (Diyanet İşleri Başkanlığı)."
-  (awqat--preset-with-angles -18.0 -17.0))
-
 (defun awqat-set-preset-algeria ()
   "Use the calculation method defined by the Ministry of Religious Affairs and Wakfs, Algeria."
   (awqat--preset-with-angles -18.0 -17.0))
