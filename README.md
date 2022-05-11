@@ -143,6 +143,7 @@ presets are implemented:
 - `awqat-set-preset-uae`
 - `awqat-set-preset-midnight`
 - `awqat-set-preset-one-seventh-of-night`
+- `awqat-set-preset-moonsighting-committee-worldwide`
 
 ## Configuration example
 The following is an example configuration:
