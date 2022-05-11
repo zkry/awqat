@@ -403,7 +403,8 @@ Or for today if no DAY is provided."
           (cadr maghrib-time))))
 
 (defun awqat--moonsighting-get-offset (date type)
-  "Get the offset in hours for DATE.
+  "Get the offset in hours for DATE and TYPE.
+TYPE being a valid symbol for the 'awqat-isha-moonsighting-method' variable.
 Used by the Moonsighting Committee Worldwide method."
   (let* ((consts (awqat--moonsighting-constants type))
          (a (nth 0 consts))
