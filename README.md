@@ -145,6 +145,7 @@ presets are implemented:
 - `awqat-set-preset-midnight`
 - `awqat-set-preset-one-seventh-of-night`
 - `awqat-set-preset-moonsighting-committee-worldwide`
+- `awqat-set-preset-institute-of-geophysics-university-of-tehran`
 
 ## Configuration example
 The following is an example configuration:

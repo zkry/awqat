@@ -197,6 +197,19 @@ comprising the Maliki, Shafii, and Hambali schools of thought."
   "Use the calculation method used in Kuwait."
   (awqat--preset-with-angles -18.0 -17.5))
 
+(defun awqat-set-preset-institute-of-geophysics-university-of-tehran ()
+  "Use the calculation method defined by the Institute of Geophysics, University of Tehran."
+  (setq awqat--prayer-funs (list #'awqat--prayer-fajr
+                                 #'awqat--prayer-sunrise
+                                 #'awqat--prayer-dhuhr
+                                 #'awqat--prayer-asr
+                                 (lambda (date)
+                                   (list (caadr (awqat-sunrise-sunset-angle date -4.0))
+                                         (awqat--timezone date)))
+                                 #'awqat--prayer-isha))
+  (setq awqat-fajr-angle -17.7)
+  (setq awqat-isha-angle -14.0))
+
 (defun awqat-set-preset-singapore ()
   "Use the calculation method defined by the Majlis Ugama Islam Singapura."
   (awqat--preset-with-angles -20.0 -18.0))
