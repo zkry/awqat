@@ -84,6 +84,12 @@ This is applicable only when calculating Fajr offset-based approaches."
 This is applicable only when calculating Isha offset-based approaches."
   :type 'float)
 
+(defcustom awqat-isha-moonsighting-method 'shafaq
+  "Method to use for Isha in Moonsighting Committee Wourldwide method.
+Can be `'shafaq-ahmar', `'shafaq-abyad', or `'shafaq' (which is a combination
+of Shafaq Ahmar and Abyad for high latitudes)."
+  :type 'symbol)
+
 (defcustom awqat-sunrise-sunset-angle -0.833
   "The sunrise/sunset zenith angle offset below horizon.
 
@@ -257,6 +263,18 @@ comprising the Maliki, Shafii, and Hambali schools of thought."
   (setq awqat-fajr-angle nil)
   (setq awqat-isha-angle nil))
 
+(defun awqat-set-preset-moonsighting-committee-worldwide  ()
+  "Use the calculation method defined by the Moonsighting Committee Worldwide (MCW).
+This is a latitude and season aware method."
+  (setq awqat--prayer-funs (list #'awqat--prayer-fajr-moonsighting
+                                 #'awqat--prayer-sunrise
+                                 #'awqat--prayer-dhuhr
+                                 #'awqat--prayer-asr
+                                 #'awqat--prayer-maghrib
+                                 #'awqat--prayer-isha-moonsighting))
+  (setq awqat-fajr-angle -18.0)
+  (setq awqat-isha-angle -18.0))
+
 ;;; Presets helper functions
 
 (defun awqat--preset-with-angles (fajr isha)
@@ -384,6 +402,66 @@ Or for today if no DAY is provided."
     (list (+ (car maghrib-time) offset)
           (cadr maghrib-time))))
 
+(defun awqat--moonsighting-get-offset (date type)
+  "Get the offset in hours for DATE.
+Used by the Moonsighting Committee Worldwide method."
+  (let* ((consts (awqat--moonsighting-constants type))
+         (a (nth 0 consts))
+         (b (nth 1 consts))
+         (c (nth 2 consts))
+         (d (nth 3 consts))
+         (dyy (awqat--days-since-winter-solstice date)))
+    (/ (cond ((< dyy 91)
+              (+ a (* (/ (- b a) 91.0) dyy)))
+             ((< dyy 137)
+              (+ b (* (/ (- c b) 46.0) (- dyy 91))))
+             ((< dyy 183)
+              (+ c (* (/ (- d c) 46.0) (- dyy 137))))
+             ((< dyy 229)
+              (+ d (* (/ (- c d) 46.0) (- dyy 183))))
+             ((< dyy 275)
+              (+ c (* (/ (- b c) 46.0) (- dyy 229))))
+             ((>= dyy 275)
+              (+ b (* (/ (- a b) 91.0) (- dyy 275)))))
+       60.0)))
+
+(defun awqat--days-since-winter-solstice (date)
+  "Return the days count since the last winter solstice, for a given DATE."
+  (let* ((today (awqat--today))
+         (date-zero-month (if (> calendar-latitude 0.0) 12 06))
+         (curr-year (calendar-extract-year today))
+         (prev-year-p (calendar-date-compare
+                       (list today)
+                       (list (list date-zero-month 21 curr-year))))
+         (date-zero (list date-zero-month 21 (if prev-year-p (1- curr-year) curr-year))))
+    (- (calendar-absolute-from-gregorian (awqat--today))
+       (calendar-absolute-from-gregorian date-zero))))
+
+(defun awqat--moonsighting-constants (type)
+  "Return a list of (a b c d) constants for calculation TYPE, for a given LATITUDE."
+  ;; CTE = alpha + beta / 55.0 * abs(latitude)
+  (mapcar (lambda (ab) (+ (car ab) (* (/ (cadr ab) 55.0) (abs calendar-latitude))))
+          (cond ((eq type 'subh-sadiq)
+                 '((75.0 28.65)
+                   (75.0 19.44)
+                   (75.0 32.74)
+                   (75.0 48.10)))
+                ((eq type 'shafaq-ahmer)
+                 '((62.0 17.40)
+                   (62.0 -7.16)
+                   (62.0 05.12)
+                   (62.0 19.44)))
+                ((eq type 'shafaq-abyad)
+                 '((75.0 25.60)
+                   (75.0 07.16)
+                   (75.0 36.84)
+                   (75.0 81.84)))
+                ((eq type 'shafaq)
+                 '((75.0 25.60)
+                   (75.0 02.05)
+                   (75.0 -9.21)
+                   (75.0 06.14))))))
+
 ;; The following functions can be put into the awqat--prayer-funs list.
 ;; Fajr
 
@@ -437,6 +515,25 @@ It defines the Isha and Fajr times to be the same, starting at the midnight betw
 
   (let ((offset (/ (awqat-duration-of-night date) 2.0)))
     (awqat--prayer-fajr-from-sunrise date offset)))
+
+(defun awqat--prayer-fajr-moonsighting (date)
+  "Calculate the time of Fajr for a given DATE.
+The Moonsighting Committee Worldwide (MCW) method is a latitude and season aware method.
+It takes into account placed in higher latitudes, up to 60°N/S."
+  (cond ((< (abs calendar-latitude) 55.0)
+         ;; From equator to 55°, the 18° depression angle calculations are compared with the values
+         ;; given by the functions of latitude and seasons and most favorable values are used, which
+         ;; means; for Fajr, the later of the two and for Isha the earlier of the two.
+         (let* ((offset (awqat--moonsighting-get-offset date 'subh-sadiq))
+                (fajr-18 (car (awqat-sunrise-sunset-angle date -18.0))))
+           (list (max (car fajr-18)
+                      (- (car (awqat--prayer-sunrise date)) offset))
+                 (awqat--timezone date))))
+
+        ((and (<= 55.0 (abs calendar-latitude)) (< (abs calendar-latitude) 60.0))
+         (awqat--prayer-fajr-one-seventh-of-night date))
+        (t (warn "Latitudes beyond 60°N/S, hardship prevails and beyond 65°,
+the sun does not set/rise for a number of days every year."))))
 
 ;; Sunrise
 
@@ -517,6 +614,25 @@ The one-seventh of night method is an approximation used in higher latitudes dur
 
   (let ((offset (/ (awqat-duration-of-night date) 7.0)))
     (awqat--prayer-isha-from-sunset date offset)))
+
+(defun awqat--prayer-isha-moonsighting (date)
+  "Calculate the time of Isha for a given DATE.
+The Moonsighting Committee Worldwide (MCW) method is a latitude and season aware method.
+It takes into account placed in higher latitudes, up to 60°N/S."
+  (cond ((< (abs calendar-latitude) 55.0)
+         ;; From equator to 55°, the 18° depression angle calculations are compared with the values
+         ;; given by the functions of latitude and seasons and most favorable values are used, which
+         ;; means; for Fajr, the later of the two and for Isha the earlier of the two.
+         (let* ((offset (awqat--moonsighting-get-offset date awqat-isha-moonsighting-method))
+                (isha-18 (cadr (awqat-sunrise-sunset-angle date -18.0))))
+           (list (min (car isha-18)
+                      (+ (car (awqat--prayer-maghrib date)) offset))
+                 (awqat--timezone date))))
+
+        ((and (<= 55.0 (abs calendar-latitude)) (< (abs calendar-latitude) 60.0))
+         (awqat--prayer-isha-one-seventh-of-night date))
+        (t (warn "Latitudes beyond 60°N/S, hardship prevails and beyond 65°,
+the sun does not set/rise for a number of days every year."))))
 
 ;;; Time Calculations --------------------------------------------------------------------
 
