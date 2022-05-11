@@ -203,6 +203,14 @@ comprising the Maliki, Shafii, and Hambali schools of thought."
   "Use the calculation method defined by the Ministry of Religious Affairs and Wakfs, Algeria."
   (awqat--preset-with-angles -18.0 -17.0))
 
+(defun awqat-set-preset-morocco ()
+  "Use the calculation method used in Morocco."
+  (awqat--preset-with-angles -18.0 -18.0))
+
+(defun awqat-set-preset-taiwan ()
+  "Use the calculation method used in Taiwan."
+  (awqat--preset-with-angles -16.0 -19.0))
+
 (defun awqat-set-preset-uae ()
   "Use the calculation method used in UAE."
   (awqat--preset-with-angles -18.2 -18.2))
@@ -218,6 +226,10 @@ comprising the Maliki, Shafii, and Hambali schools of thought."
 (defun awqat-set-preset-french-muslims ()
   "Use the calculation method defined by the French Muslims (former: Union des Organisations Islamiques de France)."
   (awqat--preset-with-angles -12.0 -12.0))
+
+(defun awqat-set-preset-grande-mosquee-de-paris ()
+  "Use the calculation method similar to the one used by Grande Mosquée de Paris, France."
+  (awqat--preset-with-angles -15.0 -13.0))
 
 (defun awqat-set-preset-isna ()
   "Use the calculation method defined by the Islamic Society of North America (ISNA)."
