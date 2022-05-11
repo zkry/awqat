@@ -248,9 +248,7 @@ comprising the Maliki, Shafii, and Hambali schools of thought."
                                  #'awqat--prayer-dhuhr
                                  #'awqat--prayer-asr
                                  #'awqat--prayer-maghrib
-                                 #'awqat--prayer-isha-midnight))
-  (setq awqat-fajr-angle nil)
-  (setq awqat-isha-angle nil))
+                                 #'awqat--prayer-isha-midnight)))
 
 (defun awqat-set-preset-one-seventh-of-night ()
   "Use the calculation method used in higher latitudes (One-seventh of night method)."
@@ -259,9 +257,7 @@ comprising the Maliki, Shafii, and Hambali schools of thought."
                                  #'awqat--prayer-dhuhr
                                  #'awqat--prayer-asr
                                  #'awqat--prayer-maghrib
-                                 #'awqat--prayer-isha-one-seventh-of-night))
-  (setq awqat-fajr-angle nil)
-  (setq awqat-isha-angle nil))
+                                 #'awqat--prayer-isha-one-seventh-of-night)))
 
 (defun awqat-set-preset-moonsighting-committee-worldwide  ()
   "Use the calculation method defined by the Moonsighting Committee Worldwide (MCW).
