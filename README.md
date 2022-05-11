@@ -108,6 +108,10 @@ for Dhuhr (see below).
   - The `awqat-set-preset-one-seventh-of-night` preset which uses the function
     `awqat--prayer-isha-one-seventh-of-night` to calculate a prayer time for
     Isha based on the one-seventh of night method.
+- For the Moonsighting Committee Worldwide method, an additional parameter can
+  be set for Isha. The `awqat-isha-moonsighting-method` accepts a symbol which
+  can be `'shafaq-ahmar`, `'shafaq-abyad`, or `'shafaq` (which is a combination
+  of Shafaq Ahmar and Abyad for high latitudes).
 
 ### Safety offsets
 You can add a safety offset to all times via the `awqat-prayer-safety-offsets`
@@ -127,10 +131,13 @@ presets are implemented:
 - `awqat-set-preset-jakim`
 - `awqat-set-preset-spiritual-administration-of-musilms-russia`
 - `awqat-set-preset-french-muslims`
+- `awqat-set-preset-grande-mosquee-de-paris`
 - `awqat-set-preset-isna`
 - `awqat-set-preset-egyptian-general-authority-of-survey`
 - `awqat-set-preset-kuwait`
 - `awqat-set-preset-algeria`
+- `awqat-set-preset-morocco`
+- `awqat-set-preset-taiwan`
 - `awqat-set-preset-singapore`
 - `awqat-set-preset-diyanet-turkey`
 - `awqat-set-preset-uae`
@@ -206,7 +213,7 @@ The above snippets are, of course, examples.  Feel free to modify to your liking
 By running the command `awqat-display-prayer-time-mode` you can view
 the upcoming prayer time in the modeline which is updated in real time.
 
-## Notes on the calculation
+## Notes on the calculation methods
 
 Please be warned that this package may contain bugs, the times calculated by
 Awqat may or may not reflect the times of the particular organization that you
@@ -214,10 +221,25 @@ follow. We encourage you to check the Awqat times against times of your
 organization or your local mosque. Please feel free to open an issue if you
 observe an anomaly in our calculations.
 
-### High altitudes
+### Moonsighting Committee Worldwide method
+Awqat implements the Moonsighting Committee Worldwide (MCW) method[^moonsighting].
+This method is location and season aware. 
+
+For placed between equator and 55°, this method defines a set **functions of
+latitude and season** to calculate variable offsets from the sunset and sunrise.
+These offsets are then added or subtracted from the sunset/sunrise to get the
+estimated prayer time. The time estimated using these **functions** is then
+compared to the angle-based time calculated using the 18.0 angle, the most
+favorable is used (for Fajr, the later of the two and for Isha the earlier of
+the two).
+
+For places between 55° and 60°, the MCW uses the *one-seventh of night* method.
+
+### High latitudes
 The calculations for Isha and Fajr for high latitudes are implemented through
-the *midnight* and *one-seventh of the night* methods. The *angle-based* methods
-for calculating times at higher latitudes is not implemented yet.
+the *midnight* and *one-seventh of the night* methods [^prayertimes]. The 
+*angle-based* methods for calculating times at higher latitudes is not
+implemented yet.
 
 If you leave in a high altitude place (beyond 48.5°N and 48.5°S), you should
 check your organization or mosque to confirm the accepted method. Also, these
@@ -235,3 +257,6 @@ check with your local organization or mosque to see which time is considered
 Isha's time. Note that some jurisprudence (al-Fiqh الفقه) opinions adopt
 grouping Maghrib and Isha prayers (al-Jam'a الجمع) when astronomical signs are
 not visible (as in high latitudes during some period of time per year).
+
+[^moonsighting]: [Syed Khalid Shaukat, _Fajr and Isha_, September 2015](https://raw.githubusercontent.com/islamic-network/prayer-times-moonsighting/master/booklet-fajr-isha.pdf)
+[^prayertimes]: [Prayertimes.org](http://prayertimes.org/calculation)
