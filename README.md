@@ -10,7 +10,7 @@ source file `awqat.el` in your source path.
 
 ### Installation for Spacemacs
 
-If you are using Spacemacs you can easily install this package by putting the
+If you are using [Spacemacs](https://github.com/syl20bnr/spacemacs) you can easily install this package by putting the
 following in the `dotspacemacs-additional-packages`:
 
 ```lisp
@@ -22,7 +22,7 @@ dotspacemacs-additional-packages '((awqat :location (recipe
 And in `dotspacemacs/user-config` adding `(require 'awqat)`.
 
 ### Installation for Doom Emacs
-If you are using Doom Emacs, you can declare a custom package in your
+If you are using [Doom Emacs](https://github.com/doomemacs/doomemacs), you can declare a custom package in your
 `packages.el` file:
 
 ```lisp
@@ -115,6 +115,7 @@ variable. For example, to have sunrise be one minute sooner, Dhuhr two minutes
 later, and Maghrib one minute later you can add `(setq
 awqat-prayer-safety-offsets '(0.0 -1.0 2.0 0.0 1.0 0.0))`.
 
+### Presets
 There are presets with the angles for various organizations. You can call these
 functions to configure corresponding calculation parameters. The following
 presets are implemented:
