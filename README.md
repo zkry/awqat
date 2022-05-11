@@ -1,7 +1,7 @@
-# Awqat
+# Awqat - Islamic prayer times for Emacs
 
 Awqat is an Emacs package to calculate the five daily Islamic prayer times. It
-includes also a mode line mode to show the remaining time to next prayer.
+includes also a mode line mode to show the remaining time for the next prayer.
 
 ## Installation
 
@@ -10,8 +10,9 @@ source file `awqat.el` in your source path.
 
 ### Installation for Spacemacs
 
-If you are using [Spacemacs](https://github.com/syl20bnr/spacemacs) you can easily install this package by putting the
-following in the `dotspacemacs-additional-packages`:
+If you are using [Spacemacs](https://github.com/syl20bnr/spacemacs) you can
+easily install this package by putting the following in the
+`dotspacemacs-additional-packages`:
 
 ```lisp
 dotspacemacs-additional-packages '((awqat :location (recipe
@@ -22,8 +23,8 @@ dotspacemacs-additional-packages '((awqat :location (recipe
 And in `dotspacemacs/user-config` adding `(require 'awqat)`.
 
 ### Installation for Doom Emacs
-If you are using [Doom Emacs](https://github.com/doomemacs/doomemacs), you can declare a custom package in your
-`packages.el` file:
+If you are using [Doom Emacs](https://github.com/doomemacs/doomemacs), you can
+declare a custom package in your `packages.el` file:
 
 ```lisp
 (package! awqat
@@ -56,8 +57,8 @@ these are set properly.
 The prayer times can be configured in the following ways:
 
 ### Fajr
-- If using angle-based method, you can set the angle to calculate Fajr with the
-  `awqat-fajr-angle` variable. (used in conjunction with the
+- If using an angle-based method, you can set the angle to calculate Fajr with
+  the `awqat-fajr-angle` variable. (used in conjunction with the
   `awqat-use-angle-based-method` function)
 - If using a fixed offset-based method, you can set the hours before sunrise via
   the `awqat-fajr-before-offset` variable. (used in conjunction with the
@@ -73,16 +74,16 @@ The prayer times can be configured in the following ways:
 ### Sunrise
 - The only customizable variable for sunrise is `awqat-sunrise-sunset-angle`
   (Defaults to -0.833), which represents the sunrise/sunset zenith angle offset
-  below horizon. A zero value corresponds to the sun being at zenith=90°, which
-  means that the sun circle is still visible. The apparent radius of the sun at
-  the horizon is 16 arcminutes, and the average refraction is known to be 34
-  arcminutes, which gives an offset of 50 arcminutes, hence the -0.833° value.
+  below the horizon. A zero value corresponds to the sun being at zenith=90°,
+  which means that the sun circle is still visible. The apparent radius of the
+  sun at the horizon is 16 arcminutes, and the average refraction is known to be
+  34 arcminutes, which gives an offset of 50 arcminutes, hence the -0.833° value.
   **You shouldn't change this variable unless you are an astrophysicist!**
 
 ### Dhuhr
-Dhuhr time corresponds to the noon. It is the base for calculating other times.
-Dhuhr do not have specific configuration. However, you can set safety offsets
-for Dhuhr (see below).
+Dhuhr time corresponds to noon. It is the base for calculating other times.
+Dhuhr does not have a specific configuration. However, you can set safety
+offsets for Dhuhr (see below).
 
 ### Asr
 - You can set the flag `awqat-asr-hanafi` to `t` to follow the Hanafi opinion on
@@ -90,16 +91,16 @@ for Dhuhr (see below).
   opinion (of Hanbali, Shafii, and Maliki). Defaults to `nil`.
 
 ### Maghrib
-- Like sunrise, only `awqat-sunrise-sunset-angle` can be set. However, it is
-  highly discouraged to change it, unless you have a very strong an justified
+- Like the sunrise, only `awqat-sunrise-sunset-angle` can be set. However, it is
+  highly discouraged to change it, unless you have a very strong and justified
   argument to do!
 
 ### Isha
 - Like for Fajr you can set the angle for calculation with the
-  `awqat-isha-angle` variable. (used in conjunction with the
+  `awqat-isha-angle` variable (used in conjunction with the
   `awqat-use-angle-based-method` function)
 - If using the offset-based method, you can set the hours after sunset via the
-  `awqat-isha-after-sunset` variable. (used in conjunction with the
+  `awqat-isha-after-sunset` variable (used in conjunction with the
   `awqat-use-time-offset-method` function)
 - For people living in higher latitudes (beyond 48.5N, 48.5S), you can use:
   - The `awqat-set-preset-midnight` preset which uses the function
@@ -111,13 +112,13 @@ for Dhuhr (see below).
 - For the Moonsighting Committee Worldwide method, an additional parameter can
   be set for Isha. The `awqat-isha-moonsighting-method` accepts a symbol which
   can be `'shafaq-ahmar`, `'shafaq-abyad`, or `'shafaq` (which is a combination
-  of Shafaq Ahmar and Abyad for high latitudes).
+  of _Shafaq Ahmar_ and _Shafaq Abyad_ for high latitudes).
 
 ### Safety offsets
 You can add a safety offset to all times via the `awqat-prayer-safety-offsets`
 variable. For example, to have sunrise be one minute sooner, Dhuhr two minutes
 later, and Maghrib one minute later you can add `(setq
-awqat-prayer-safety-offsets '(0.0 -1.0 2.0 0.0 1.0 0.0))`.
+awqat-prayer-safety-offsets '(0.0 -1.0 2.0 0.0 1.0 0.0))` to your configuration.
 
 ### Presets
 There are presets with the angles for various organizations. You can call these
@@ -157,7 +158,7 @@ The following is an example configuration:
 (setq awqat-isha-angle -16.0)
 ```
 
-Here another example which make use of the Muslim World League preset:
+Here is another example that makes use of the Muslim World League preset:
 
 ```lisp
 (require 'awqat)
@@ -170,7 +171,7 @@ Here another example which make use of the Muslim World League preset:
 ## Viewing the times
 
 By calling `M-x awqat-times-for-day` you can see the six times for the day,
-alongside with the remaining time for the next prayer.
+alongside the remaining time for the next prayer.
 
 ### Viewing times with Diary/Org-Agenda
 
@@ -207,18 +208,18 @@ Then in an Org file which is part of `org-agenda-files`, add the following:
 %%(awqat-diary-isha)
 ```
 
-The above snippets are, of course, examples.  Feel free to modify to your liking.
+The above snippets are, of course, examples. Feel free to modify your liking.
 
 ## awqat-display-prayer-time-mode
 
 By running the command `awqat-display-prayer-time-mode` you can view
-the upcoming prayer time in the modeline which is updated in real time.
+the upcoming prayer time in the mode-line which is updated in real-time.
 
 ## Notes on the calculation methods
 
 Please be warned that this package may contain bugs, the times calculated by
 Awqat may or may not reflect the times of the particular organization that you
-follow. We encourage you to check the Awqat times against times of your
+follow. We encourage you to check the Awqat times against the times of your
 organization or your local mosque. Please feel free to open an issue if you
 observe an anomaly in our calculations.
 
@@ -226,34 +227,34 @@ observe an anomaly in our calculations.
 Awqat implements the Moonsighting Committee Worldwide (MCW) method[^moonsighting].
 This method is location and season aware. 
 
-For placed between equator and 55°, this method defines a set **functions of
+For placed between the equator and 55°, this method defines a set **functions of
 latitude and season** to calculate variable offsets from the sunset and sunrise.
 These offsets are then added or subtracted from the sunset/sunrise to get the
 estimated prayer time. The time estimated using these **functions** is then
 compared to the angle-based time calculated using the 18.0 angle, the most
-favorable is used (for Fajr, the later of the two and for Isha the earlier of
+favorable is used (for Fajr, the latter of the two; for Isha, the earlier of
 the two).
 
 For places between 55° and 60°, the MCW uses the *one-seventh of night* method.
 
 ### High latitudes
 The calculations for Isha and Fajr for high latitudes are implemented through
-the *midnight* and *one-seventh of the night* methods [^prayertimes]. The 
-*angle-based* methods for calculating times at higher latitudes is not
-implemented yet.
+*midnight*, *three portions of the night*, *one-seventh of the night*, and the
+*twilight angle-based* methods[^prayertimes] for calculating times at higher 
+latitudes are implemented, but not heavily tested.
 
-If you leave in a high altitude place (beyond 48.5°N and 48.5°S), you should
+If you live in a high latitude place (beyond 48.5°N and 48.5°S), you should
 check your organization or mosque to confirm the accepted method. Also, these
 special methods should only be used when the astronomical signs of twilight
 (Fajr and Isha) are not visible, this occurs only during a specific period of
-the year. Currently the method cannot determine whether the signs are visible or
+the year. Currently, the method cannot determine whether the signs are visible or
 not. So please make sure you are using the alternative method only when the
 signs are not visible.
 
 Note that, the *midnight* method tries to resolve the problem of estimating the
 Fajr time by choosing the Fajr time to be at *astronomical midnight*. The time
 between sunset and the astronomical midnight is considered to be the Night.
-The *midnight* method do not clearly define the Isha time, hence you need to
+The *_midnight_ method does not clearly define the Isha time, hence you need to
 check with your local organization or mosque to see which time is considered
 Isha's time. Note that some jurisprudence (al-Fiqh الفقه) opinions adopt
 grouping Maghrib and Isha prayers (al-Jam'a الجمع) when astronomical signs are
