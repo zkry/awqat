@@ -84,7 +84,7 @@ This is applicable only when calculating Fajr offset-based approaches."
 This is applicable only when calculating Isha offset-based approaches."
   :type 'float)
 
-(defcustom awqat-sunrise-sunset-below-angle -0.833
+(defcustom awqat-sunrise-sunset-angle -0.833
   "The sunrise/sunset zenith angle offset below horizon.
 
 Used to determine the sunrise and sunset (Maghreb).
@@ -556,7 +556,7 @@ This method is considered according only if calendar latitude is greater than 45
 
 (defun awqat-sunrise-sunset (date)
   "Calculate the times of maghrib and imsak for DATE."
-  (awqat-sunrise-sunset-angle date awqat-sunrise-sunset-below-angle))
+  (awqat-sunrise-sunset-angle date awqat-sunrise-sunset-angle))
 
 (defun awqat-height-of-sun-at-noon (date)
   "Calculates the height of at solar noon on DATE."
