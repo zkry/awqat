@@ -1,15 +1,12 @@
 # Awqat - Islamic prayer times for Emacs
-
 Awqat is an Emacs package to calculate the five daily Islamic prayer times. It
 includes also a mode line mode to show the remaining time for the next prayer.
 
 ## Installation
-
 This package is currently not located on MELPA. To use it you should include the
 source file `awqat.el` in your source path.
 
 ### Installation for Spacemacs
-
 If you are using [Spacemacs](https://github.com/syl20bnr/spacemacs) you can
 easily install this package by putting the following in the
 `dotspacemacs-additional-packages`:
@@ -43,13 +40,9 @@ And then, add a suitable configuration based on your location.
         calendar-longitude 1.3
         awqat-mode-line-format " 🕌 ${prayer} (${hours}h${minutes}m) "))
   (awqat-set-preset-muslim-world-league))
-
-;; If you want to enable 'awqat-display-prayer-time-mode' at startup
-(awqat-display-prayer-time-mode)
 ```
 
 ## Setup
-
 You should have your calendar's latitude and longitude variables set up.
 Evaluate the variables `calendar-latitude` and `calendar-longitude` to see if
 these are set properly.
@@ -169,12 +162,10 @@ Here is another example that makes use of the Muslim World League preset:
 ```
 
 ## Viewing the times
-
 By calling `M-x awqat-times-for-day` you can see the six times for the day,
 alongside the remaining time for the next prayer.
 
 ### Viewing times with Diary/Org-Agenda
-
 The times can be added to the diary view or org-agenda view using the diary
 functions. In your `diary-file`, add the following lines:
 
@@ -211,17 +202,38 @@ Then in an Org file which is part of `org-agenda-files`, add the following:
 The above snippets are, of course, examples. Feel free to modify your liking.
 
 ## awqat-display-prayer-time-mode
-
 By running the command `awqat-display-prayer-time-mode` you can view
 the upcoming prayer time in the mode-line which is updated in real-time.
 
 ## Notes on the calculation methods
-
 Please be warned that this package may contain bugs, the times calculated by
 Awqat may or may not reflect the times of the particular organization that you
 follow. We encourage you to check the Awqat times against the times of your
 organization or your local mosque. Please feel free to open an issue if you
 observe an anomaly in our calculations.
+
+### High latitudes
+The calculations for Isha and Fajr for high latitudes are implemented through
+_**midnight**_, _**three portions of the night**_, _**one-seventh of the
+night**_, and the _**twilight angle-based**_ methods[^prayertimes]; however,
+these methods have not been heavily tested.
+
+If you live in a high latitude place (beyond 48.5°N and 48.5°S), you should
+check your organization or mosque to confirm the accepted method. Also, these
+special methods should only be used when the astronomical signs of twilight
+(Fajr and Isha) are not visible, this occurs only during a specific period of
+the year. Currently, the method cannot determine whether the signs are visible or
+not. So please make sure you are using the alternative method only when the
+signs are not visible.
+
+Note that, the _midnight_ method tries to resolve the problem of estimating the
+Fajr time by choosing the Fajr time to be at _astronomical midnight_. The time
+between sunset and the astronomical midnight is considered to be the Night.
+The _midnight_ method does not clearly define the Isha time, hence you need to
+check with your local organization or mosque to see which time is considered
+Isha's time. Note that some jurisprudence (al-Fiqh الفقه) opinions adopt
+grouping Maghrib and Isha prayers (al-Jam'a الجمع) when astronomical signs are
+not visible (as in high latitudes during some period of time per year).
 
 ### Moonsighting Committee Worldwide method
 Awqat implements the Moonsighting Committee Worldwide (MCW) method[^moonsighting].
@@ -237,28 +249,5 @@ the two).
 
 For places between 55° and 60°, the MCW uses the *one-seventh of night* method.
 
-### High latitudes
-The calculations for Isha and Fajr for high latitudes are implemented through
-*midnight*, *three portions of the night*, *one-seventh of the night*, and the
-*twilight angle-based* methods[^prayertimes] for calculating times at higher 
-latitudes are implemented, but not heavily tested.
-
-If you live in a high latitude place (beyond 48.5°N and 48.5°S), you should
-check your organization or mosque to confirm the accepted method. Also, these
-special methods should only be used when the astronomical signs of twilight
-(Fajr and Isha) are not visible, this occurs only during a specific period of
-the year. Currently, the method cannot determine whether the signs are visible or
-not. So please make sure you are using the alternative method only when the
-signs are not visible.
-
-Note that, the *midnight* method tries to resolve the problem of estimating the
-Fajr time by choosing the Fajr time to be at *astronomical midnight*. The time
-between sunset and the astronomical midnight is considered to be the Night.
-The *_midnight_ method does not clearly define the Isha time, hence you need to
-check with your local organization or mosque to see which time is considered
-Isha's time. Note that some jurisprudence (al-Fiqh الفقه) opinions adopt
-grouping Maghrib and Isha prayers (al-Jam'a الجمع) when astronomical signs are
-not visible (as in high latitudes during some period of time per year).
-
-[^moonsighting]: [Syed Khalid Shaukat, _Fajr and Isha_, September 2015](https://raw.githubusercontent.com/islamic-network/prayer-times-moonsighting/master/booklet-fajr-isha.pdf)
 [^prayertimes]: [Prayertimes.org](http://prayertimes.org/calculation)
+[^moonsighting]: [Syed Khalid Shaukat, _Fajr and Isha_, September 2015](https://raw.githubusercontent.com/islamic-network/prayer-times-moonsighting/master/booklet-fajr-isha.pdf)
