@@ -26,6 +26,7 @@
 
 ;;; Code:
 (require 'awqat)
+(require 'cl-lib)
 
 ;;; lat-lon for Berlin
 ;; (setq calendar-latitude 52.439)
@@ -67,20 +68,21 @@
        ret)))
 
 (defun str->date (ds)
-  "Convert DD.MM.YYYY string DS to list of (MM DD YYYY)"
+  "Convert DD.MM.YYYY string DS to list of (MM DD YYYY)."
   (let ((parts (mapcar #'string-to-number (split-string ds "\\."))))
-    (list (second parts)
-          (first parts)
-          (third parts))))
+    (list (cl-second parts)
+          (cl-first parts)
+          (cl-third parts))))
 
 (defun str->time (ts)
   "Convert HH:MM string TS to number of hours past 00:00."
   (let* ((parts (mapcar #'string-to-number (split-string ts ":")))
-         (h (first parts))
-         (m (second parts)))
+         (h (cl-first parts))
+         (m (cl-second parts)))
     (+ h (/ m 60.0))))
 
 (defun time->str (time)
+  "Convert TIME in hours to string."
   (format "%d:%d" (floor time) (* (- time (floor time)) 60)))
 
 (ert-deftest test-diyanet-times-berlin ()
@@ -90,17 +92,18 @@
                          ("20.02.2020" "05:19" "07:07" "12:25" "14:58" "17:33" "18:53")
                          ("13.03.2020" "04:34" "06:18" "12:21" "15:26" "18:14" "19:34")
                          ("15.03.2020" "04:32" "06:14" "12:20" "15:29" "18:17" "19:37")))
-      (let* ((date (str->date (first test-case)))
-             (fajr (str->time (second test-case)))
+      (let* ((date (str->date (cl-first test-case)))
+             (fajr (str->time (cl-second test-case)))
              (got-fajr (car (awqat--prayer-fajr date))))
         (message (format "diff= %s  (%s)" (abs (- fajr got-fajr)) (time->str got-fajr)))))))
 
 (ert-deftest test-french-muslims-paris ()
   "Tests that the calculated times in Berlin match given times by Diyanet."
   (awqat--with-preset-fun awqat-set-preset-french-muslims (48.859 2.277)
-    (dolist (test-case '(("11.05.2022" "04:49" "06:15" "13:47" "17:54" "09:21" "22:47")))
-      (let* ((date (str->date (first test-case)))
-             (fajr (str->time (second test-case)))
+    (dolist (test-case '(("11.05.2022" "04:49" "06:15" "13:47" "17:54" "09:21" "22:47")
+                         ("14.05.2022" "04:43" "06:11" "13:47" "17:56" "09:25" "22:52")))
+      (let* ((date (str->date (cl-first test-case)))
+             (fajr (str->time (cl-second test-case)))
              (got-fajr (car (awqat--prayer-fajr date))))
         (message (format "diff= %s  (%s)" (abs (- fajr got-fajr)) (time->str got-fajr)))))))
 
