@@ -87,7 +87,9 @@ This is applicable only when calculating Isha offset-based approaches."
 (defcustom awqat-isha-moonsighting-method 'shafaq
   "Method to use for Isha in Moonsighting Committee Wourldwide method.
 Can be `'shafaq-ahmar', `'shafaq-abyad', or `'shafaq' (which is a combination
-of Shafaq Ahmar and Abyad for high latitudes)."
+of Shafaq Ahmar and Abyad for high latitudes).
+
+For detailed information, see \"Syed Khalid Shaukat, Fajr and Isha, Sep 2015\"."
   :type 'symbol)
 
 (defcustom awqat-sunrise-sunset-angle -0.833
@@ -104,12 +106,14 @@ which gives an offset of 50 arcminutes, hence the 0.833° value."
 (defcustom awqat-asr-hanafi nil
   "Use the Hanafi jurisprudence (al-Fiqh al-Hanafi) for Asr time.
 
-Default value is 'nil', corresponding to the consensus opinion (al-Jomhor),
-comprising the Maliki, Shafii, and Hambali schools of thought."
+Default value is 'nil', corresponding to the majority opinion (al-Jomhor),
+including the Maliki, Shafii, and Hambali schools of thought."
   :type 'boolean)
 
 (defcustom awqat-prayer-safety-offsets (make-list 6 0.0)
-  "The offset in minutes applied for the 6 times."
+  "The offset in minutes applied for the six times.
+
+List ordered as: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
   :type 'list)
 
 (defcustom awqat--prayer-funs
@@ -119,7 +123,7 @@ comprising the Maliki, Shafii, and Hambali schools of thought."
         #'awqat--prayer-asr
         #'awqat--prayer-maghrib
         #'awqat--prayer-isha)
-  "The functions used to calculate each time, a list of 6 elements."
+  "The functions used to calculate each time, a list of six elements."
   :type 'list)
 
 (defvar awqat--prayer-names
