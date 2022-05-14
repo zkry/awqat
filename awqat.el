@@ -91,7 +91,9 @@ Can be `'shafaq-ahmar', `'shafaq-abyad', or `'shafaq' (which is a combination
 of Shafaq Ahmar and Abyad for high latitudes).
 
 For detailed information, see \"Syed Khalid Shaukat, Fajr and Isha, Sep 2015\"."
-  :type 'symbol)
+  :type '(choice (const shafaq)
+                 (const shafaq-abyad)
+                 (const shafaq-ahmar)))
 
 (defcustom awqat-sunrise-sunset-angle -0.833
   "The sunrise/sunset zenith angle offset below horizon.
