@@ -34,6 +34,7 @@
 
 ;;; Code:
 
+(require 'simple)
 (require 'solar)
 (require 'calendar)
 (require 'cal-islam)
@@ -300,23 +301,25 @@ This is a latitude and season aware method."
 ;;; UI/Interactive functions and helpers.
 
 (defun awqat--now ()
-  (let ((h-m (mapcar #'string-to-number (split-string (format-time-string "%H:%M") ":"))))
-    (+ (car h-m) (/ (cadr h-m) 60.0))))
+  "Return current time in hours."
+  (let ((time-lst (decode-time)))
+    (+ (decoded-time-hour time-lst)
+       (/ (decoded-time-minute time-lst) 60.0))))
 
 (defun awqat--today ()
   "Return today's date in the format (M D Y)."
-  (list
-   (string-to-number (format-time-string "%m"))
-   (string-to-number (format-time-string "%d"))
-   (string-to-number (format-time-string "%Y"))))
+  (let ((time-lst (decode-time)))
+    (list (decoded-time-month time-lst)
+          (decoded-time-day time-lst)
+          (decoded-time-year time-lst))))
 
 (defun awqat--tomorrow ()
   "Return tommorow's date in the format (M D Y)."
-  (let ((tomorrow (time-add nil (* 60 60 24))))
-    (list
-     (string-to-number (format-time-string "%m" tomorrow))
-     (string-to-number (format-time-string "%d" tomorrow))
-     (string-to-number (format-time-string "%Y" tomorrow)))))
+  (let* ((tomorrow (time-add nil (* 60 60 24)))
+         (time-lst (decode-time tomorrow)))
+    (list (decoded-time-month time-lst)
+          (decoded-time-day time-lst)
+          (decoded-time-year time-lst))))
 
 (defun awqat-times-for-day ()
   "Calculate and display all prayer times for today."
