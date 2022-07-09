@@ -374,26 +374,33 @@ Or for today if no DAY is provided."
 
 (with-suppressed-warnings ((lexical date))
   (defvar date))
+
 (defun awqat--diary-prayer (prayer)
-  "Display prayer time for `prayer'."
+  "Display prayer time for PRAYER (index from 0 to 5)."
   (let ((prayer-time (car (awqat--prayer-time date prayer)))
         (prayer-name (nth prayer awqat--prayer-names)))
     (concat prayer-name " " (solar-time-string prayer-time nil))))
+
 (defun awqat-diary-fajr ()
   "Diary prayer time for Fajr."
   (awqat--diary-prayer 0))
+
 (defun awqat-diary-sunrise ()
   "Display Sunrise time."
   (awqat--diary-prayer 1))
+
 (defun awqat-diary-dhuhr ()
   "Display Dhuhr time."
   (awqat--diary-prayer 2))
+
 (defun awqat-diary-asr ()
   "Display Asr time."
   (awqat--diary-prayer 3))
+
 (defun awqat-diary-maghrib ()
   "Display maghrib time."
   (awqat--diary-prayer 4))
+
 (defun awqat-diary-isha ()
   "Display Isha time."
   (awqat--diary-prayer 5))
