@@ -1,4 +1,4 @@
-;;; awqat.el --- Calculations of positions of the sun -*- lexical-binding: t; -*-
+;;; awqat.el --- Islamic prayer times -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2019-2022 Zachary Romero
 
@@ -6,7 +6,7 @@
 ;; Author: Zachary Romero <zacromero@posteo.net>
 ;; Contributor: Abdelhak Bougouffa <abdelhak.bougouffa@universite-paris-saclay.fr>
 ;; Version: 0.2.0
-;; Homepage: http://github.com/zkry/
+;; Homepage: http://github.com/zkry/awqat
 
 ;; This file is NOT part of GNU Emacs.
 
