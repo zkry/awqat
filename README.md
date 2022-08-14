@@ -239,13 +239,13 @@ not visible (as in high latitudes during some period of time per year).
 Awqat implements the Moonsighting Committee Worldwide (MCW) method[^moonsighting].
 This method is location and season aware. 
 
-For placed between the equator and 55°, this method defines a set **functions of
-latitude and season** to calculate variable offsets from the sunset and sunrise.
-These offsets are then added or subtracted from the sunset/sunrise to get the
-estimated prayer time. The time estimated using these **functions** is then
-compared to the angle-based time calculated using the 18.0 angle, the most
-favorable is used (for Fajr, the latter of the two; for Isha, the earlier of
-the two).
+For placed between the equator and 55°, this method defines correction
+**functions based on the latitude and the season** to calculate variable offsets
+from the sunset and sunrise. These offsets are then added or subtracted from the
+sunset/sunrise to get the estimated prayer time. The time estimated using these
+**functions** is then compared to the angle-based time calculated using the 18.0
+angle, the most favorable is used (for Fajr, the latter of the two; for Isha, 
+the earlier of the two).
 
 For places between 55° and 60°, the MCW uses the *one-seventh of night* method.
 
