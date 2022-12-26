@@ -808,6 +808,10 @@ If FLAG is 'skip then return empty string."
 (defconst awqat-mode-line-string nil)
 (defvar awqat-update-timer nil)
 
+(defcustom awqat-update-interval 5.0
+  "Interval, in seconds, of prayer times in the mode-line."
+  :type 'float)
+
 (defcustom awqat-warning-duration 0.75
   "Duration to next prayer, for 'awqat-display-prayer-time-mode' to show a warning."
   :type 'float)
@@ -867,7 +871,7 @@ and ${hours} and ${minutes} to refer to the remaining time."
       (setq global-mode-string
             (delq 'awqat-mode-line-string global-mode-string))
     (add-to-list 'global-mode-string 'awqat-mode-line-string t)
-    (setq awqat-update-timer (run-at-time nil 5 #'awqat-update-handler))
+    (setq awqat-update-timer (run-at-time nil awqat-update-interval #'awqat-update-handler))
     (awqat-update)))
 
 
