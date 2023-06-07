@@ -91,9 +91,7 @@ Can be `'shafaq-ahmar', `'shafaq-abyad', or `'shafaq' (which is a combination
 of Shafaq Ahmar and Abyad for high latitudes).
 
 For detailed information, see \"Syed Khalid Shaukat, Fajr and Isha, Sep 2015\"."
-  :type '(choice (const shafaq)
-                 (const shafaq-abyad)
-                 (const shafaq-ahmar)))
+  :type '(choice (const shafaq) (const shafaq-abyad) (const shafaq-ahmar)))
 
 (defcustom awqat-sunrise-sunset-angle -0.833
   "The sunrise/sunset zenith angle offset below horizon.
@@ -650,10 +648,9 @@ It takes into account placed in higher latitudes, up to 60°N/S."
          ;; means; for Fajr, the later of the two and for Isha the earlier of the two.
          (let* ((offset (awqat--moonsighting-get-offset date awqat-isha-moonsighting-method))
                 (isha-18 (cadr (awqat-sunrise-sunset-angle date -18.0))))
-           (list (min (car isha-18)
-                      (+ (car (awqat--prayer-maghrib date)) offset))
+           (list (awqat--isha-time-min
+                  date (car isha-18) (+ (car (awqat--prayer-maghrib date)) offset))
                  (awqat--timezone date))))
-
         ((and (<= 55.0 (abs calendar-latitude)) (< (abs calendar-latitude) 60.0))
          (awqat--prayer-isha-one-seventh-of-night date))
         (t (warn "Latitudes beyond 60°N/S, hardship prevails and beyond 65°,
@@ -704,6 +701,15 @@ This method is considered according only if calendar latitude is greater than 45
              (isha-fajr-diff (mod (- (+ 24.0 fajr) isha) 24)) ;
              (isha-fajr-angle-diff (- (+ 24.0 fajr-angle) isha-angle))) ;
         (> isha-fajr-angle-diff isha-fajr-diff)))))
+
+(defun awqat--isha-time-min (date time1 time2)
+  "Works like `min', used to compare isha TIME1 and TIME2 for DATE.
+This takes into account the midnight comparaison, so 23.0 is before 00.2.
+Do not use for times other than isha."
+  (let* ((sunset (awqat--sunset date))
+         (t1 (if (< time1 sunset) (+ 24.0 time1) time1))
+         (t2 (if (< time2 sunset) (+ 24.0 time2) time2)))
+    (if (< t1 t2) time1 time2)))
 
 ;;; Astronomical Calculations -----------------------------------------------------------
 
