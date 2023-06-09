@@ -752,11 +752,19 @@ Do not use for times other than isha."
         (list solar-noon solar-noon)))))
 
 (defun awqat-duration-of-night (date)
-  "Return the duration from sunset to sunrise for a given DATE."
-  (let* ((sunrise-sunset (awqat-sunrise-sunset date))
-         (sunrise (caar sunrise-sunset))
-         (sunset (caadr sunrise-sunset)))
-    (- (+ sunrise 24.0) sunset)))
+  "Return the duration from sunset to sunset for a given DATE.
+Adapted from `solar-sunrise-and-sunset'."
+  (let* ((rise-set (awqat-sunrise-sunset date))
+         (rise-time (caar rise-set))
+         (set-time (caadr rise-set)))
+    (if (not (and rise-time set-time))
+        (if (or (and (> (calendar-latitude) 0)
+                     solar-northern-spring-or-summer-season)
+                (and (< (calendar-latitude) 0)
+                     (not solar-northern-spring-or-summer-season)))
+            0 ; no night
+          24) ; no day
+      (- (+ rise-time 24.0) set-time))))
 
 (defun awqat-solar-noon (date)
   "Calculate the time of Zuhr on DATE."
