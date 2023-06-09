@@ -464,26 +464,15 @@ Used by the Moonsighting Committee Worldwide method."
   "Return a list of (a b c d) constants for calculation TYPE, for a given LATITUDE."
   ;; CTE = alpha + beta / 55.0 * abs(latitude)
   (mapcar (lambda (ab) (+ (car ab) (* (/ (cadr ab) 55.0) (abs calendar-latitude))))
-          (cond ((eq type 'subh-sadiq)
-                 '((75.0 28.65)
-                   (75.0 19.44)
-                   (75.0 32.74)
-                   (75.0 48.10)))
-                ((eq type 'shafaq-ahmer)
-                 '((62.0 17.40)
-                   (62.0 -7.16)
-                   (62.0 05.12)
-                   (62.0 19.44)))
-                ((eq type 'shafaq-abyad)
-                 '((75.0 25.60)
-                   (75.0 07.16)
-                   (75.0 36.84)
-                   (75.0 81.84)))
-                ((eq type 'shafaq)
-                 '((75.0 25.60)
-                   (75.0 02.05)
-                   (75.0 -9.21)
-                   (75.0 06.14))))))
+          (pcase type
+            ('subh-sadiq
+             '((75.0 28.65) (75.0 19.44) (75.0 32.74) (75.0 48.10)))
+            ('shafaq-ahmer
+             '((62.0 17.40) (62.0 -7.16) (62.0 05.12) (62.0 19.44)))
+            ('shafaq-abyad
+             '((75.0 25.60) (75.0 07.16) (75.0 36.84) (75.0 81.84)))
+            ('shafaq
+             '((75.0 25.60) (75.0 02.05) (75.0 -9.21) (75.0 06.14))))))
 
 ;; The following functions can be put into the awqat--prayer-funs list.
 ;; Fajr
