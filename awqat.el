@@ -375,9 +375,11 @@ Or for today if no DAY is provided."
 
 (defun awqat--diary-prayer (prayer)
   "Display prayer time for PRAYER (index from 0 to 5)."
-  (let ((prayer-time (car (awqat--prayer-time date prayer)))
-        (prayer-name (nth prayer awqat--prayer-names)))
-    (concat prayer-name " " (solar-time-string prayer-time nil))))
+  (if (or org-agenda-show-future-repeats (time-equal-p (awqat--today) date))
+      (let ((prayer-time (car (awqat--prayer-time date prayer)))
+            (prayer-name (nth prayer awqat--prayer-names)))
+        (print date)
+        (concat prayer-name " " (solar-time-string prayer-time nil)))))
 
 (defun awqat-diary-fajr ()
   "Diary prayer time for Fajr."
