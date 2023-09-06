@@ -378,7 +378,6 @@ Or for today if no DAY is provided."
   (if (or org-agenda-show-future-repeats (time-equal-p (awqat--today) date))
       (let ((prayer-time (car (awqat--prayer-time date prayer)))
             (prayer-name (nth prayer awqat--prayer-names)))
-        (print date)
         (concat prayer-name " " (solar-time-string prayer-time nil)))))
 
 (defun awqat-diary-fajr ()
