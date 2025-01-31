@@ -878,6 +878,74 @@ and ${hours} and ${minutes} to refer to the remaining time."
     (setq awqat-update-timer (run-at-time nil awqat-update-interval #'awqat-update-handler))
     (awqat-update)))
 
+(defvar awqat--adhan-process nil
+  "The process playing the current sound. Used to stop the sound.")
+
+(defvar awqat--adhan-file "adhan.mp3"
+  "Path to the sound file to play when the prayer time is reached.")
+
+(defun awqat--play-adhan ()
+  "Play the WAV sound file using Emacs' play-sound-file function."
+  (setq awqat--adhan-process
+        (make-process
+         :name "play-sound"
+         :command (list "ffplay" "-nodisp" "-autoexit" awqat--adhan-file)
+         :buffer "*sound-process*"
+         :sentinel #'awqat--adhan-process-sentinel)))
+
+(defun awqat--adhan-process-sentinel (process event)
+  "Sentinel function to handle sound process events (e.g., process exit)."
+  (when (memq (process-status process) '(exit signal))
+    (setq awqat--adhan-process nil)
+    (message "Sound playback finished or stopped.")))
+
+(defun awqat--stop-adhan ()
+  "Stop the currently playing sound."
+  (interactive)
+  (when awqat--adhan-process
+    (delete-process awqat--adhan-process)
+    (setq awqat--adhan-process nil)
+    (message "Sound stopped.")))
+
+(defvar awqat--play-adhan-for-times '(t nil t t t t)
+  "By default, the time for Sunrise is set to nil between Fajr and Ishak. You can set it to true if you wish to include it in the schedule.")
+
+(defun awqat--extract-prayer-times (prayer-times)
+  "Extract the first element of each child list from LIST-OF-LISTS."
+  (mapcar (lambda (child-list) (car child-list)) prayer-times))
+;; Example Usage
+
+(defvar prayer-times   (awqat--extract-prayer-times (awqat--times-for-day)))
+
+(defun awqat--play-sound-at-time (time)
+  "Schedule a sound to play at TIME.
+TIME should be in floating-point hours format (e.g., 12.266666667)."
+  (interactive)
+  (let* ((hours (floor time))                    ;; Get the hour part
+         (minutes (floor (* 60 (- time hours)))) ;; Get the minute part
+         (now (decode-time (current-time))) ;; Decode current time
+         (target-time (encode-time 0 minutes hours (nth 3 now) (nth 4 now) (nth 5 now))) ;; Target time
+         (delay (float-time (time-subtract target-time (current-time))))) ;; Calculate delay
+    (when (>= delay 1) ;; Only schedule if the time is in the future
+      (run-at-time delay nil #'awqat--play-adhan))))  ;; Play sound
+
+(defun awqat--schedule-adhan-with-prayer-times (prayer-time-list play-athan-for-times)
+  "Schedule sounds based on PLAY-ATHAN-FOR-TIMES and PRAYER-TIME-LIST.
+If PLAY-ATHAN-FOR-TIMES is `t` at a given index, sound will be scheduled at the corresponding time in PRAYER-TIME-LIST."
+  (cl-loop for (time bool) in (cl-mapcar #'list prayer-time-list play-athan-for-times) do
+           (when bool ;; If bool is `t`, schedule the sound
+             (awqat--play-sound-at-time time))))  ;; Schedule sound at the given time
+
+(defun awqat--schedule-daily-prayers (times prayers)
+  "Schedule daily prayers at 00:01 AM."
+  (run-at-time "00:01" 86400  ;; Run at 00:01 AM every day (86400 seconds in a day)
+               #'awqat--schedule-adhan-with-prayer-times
+               times
+               prayers))  ;; Pass your prayer time list and boolean list to the function
+
+(awqat--schedule-adhan-with-prayer-times prayer-times awqat--play-adhan-for-times)
+
+(awqat--schedule-daily-prayers (awqat--extract-prayer-times (awqat--times-for-day)) awqat--play-adhan-for-times)
 
 (provide 'awqat)
 ;;; awqat.el ends here
