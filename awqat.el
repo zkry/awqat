@@ -3,6 +3,7 @@
 ;; Copyright (C) 2019-2022 Zachary Romero
 
 ;; Package-Requires: ((emacs "27.1"))
+;; Package-Version: 20250131.162501
 ;; Author: Zachary Romero <zacromero@posteo.net>
 ;; Contributor: Abdelhak Bougouffa <abdelhak.bougouffa@universite-paris-saclay.fr>
 ;; Version: 0.2.0
@@ -915,8 +916,6 @@ and ${hours} and ${minutes} to refer to the remaining time."
   (mapcar (lambda (child-list) (car child-list)) prayer-times))
 ;; Example Usage
 
-(defvar prayer-times   (awqat--extract-prayer-times (awqat--times-for-day)))
-
 (defun awqat--play-sound-at-time (time)
   "Schedule a sound to play at TIME.
 TIME should be in floating-point hours format (e.g., 12.266666667)."
@@ -943,9 +942,15 @@ If PLAY-ATHAN-FOR-TIMES is `t` at a given index, sound will be scheduled at the 
                times
                prayers))  ;; Pass your prayer time list and boolean list to the function
 
-(awqat--schedule-adhan-with-prayer-times prayer-times awqat--play-adhan-for-times)
+;;(awqat--times-for-day)
 
-(awqat--schedule-daily-prayers (awqat--extract-prayer-times (awqat--times-for-day)) awqat--play-adhan-for-times)
+(awqat--schedule-adhan-with-prayer-times
+ (awqat--extract-prayer-times (awqat--times-for-day))
+ awqat--play-adhan-for-times)
+
+(awqat--schedule-daily-prayers
+ (awqat--extract-prayer-times (awqat--times-for-day))
+ awqat--play-adhan-for-times)
 
 (provide 'awqat)
 ;;; awqat.el ends here
