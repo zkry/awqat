@@ -161,6 +161,28 @@ Here is another example that makes use of the Muslim World League preset:
 (awqat-set-preset-muslim-world-league)
 ```
 
+Here is another example that play athan sound on the scheduled time and stop with keyboard shortcut
+```
+  (use-package awqat
+    :quelpa ((awqat :fetcher github :repo "erolxx/awqat"))
+    :bind
+    (("C-c r p" . awqat-times-for-day)
+     ("C-c r s" . awqat--stop-adhan))
+
+    :init
+    ()
+    :config
+    (setq calendar-latitude 40.9
+          calendar-longitude -74.3
+          awqat--adhan-file (expand-file-name "~/Drive/adhan.mp3")
+          awqat-mode-line-format " 🕌 ${prayer} (${hours}h${minutes}m) "
+          awqat-prayer-safety-offsets '(-6.0 -9.0 5.0 4.0 5.0 -1.0)
+          org-agenda-include-diary t)
+    (awqat-set-preset-muslim-world-league)
+    (awqat-set-todays-prayer-times))
+  (awqat-display-prayer-time-mode)
+```
+
 ## Viewing the times
 By calling `M-x awqat-times-for-day` you can see the six times for the day,
 alongside the remaining time for the next prayer.
