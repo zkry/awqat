@@ -182,6 +182,7 @@ Here is another example that play athan sound on the scheduled time and stop wit
     (awqat-set-preset-muslim-world-league)
     (awqat-set-todays-prayer-times))
   (awqat-display-prayer-time-mode)
+  (awqat-adhan-mode)
 ```
 
 ## Viewing the times
