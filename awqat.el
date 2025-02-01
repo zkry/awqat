@@ -882,26 +882,70 @@ and ${hours} and ${minutes} to refer to the remaining time."
     (setq awqat-update-timer (run-at-time nil awqat-update-interval #'awqat-update-handler))
     (awqat-update)))
 
+
+
+;;; Adhan Mode
+
+(defcustom awqat-audio-player "ffplay"
+  "Music player used to play sounds.
+Possible values are \"ffplay\", \"aplay\", or \"afplay\"."
+  :group 'awqat
+  :type '(choice (const "ffplay")
+                 (const "afplay")
+                 (const "aplay")))
+
+(defun awqat--play-sound (sound-file)
+  "Create and return a process to play SOUND-FILE.
+The program to use is specified in the variable `awqat-audio-player'."
+  (let ((cmd-args
+         (pcase (file-name-base awqat-audio-player)
+           ("ffplay"
+            (list awqat-audio-player "-nodisp" "-autoexit" sound-file))
+           (_ (list awqat-audio-player sound-file)))))
+    (apply #'start-process (append '("Awqat adhan sound"
+                                     "*awqat-sound-process*")
+                                   cmd-args))))
+
+(defcustom awqat-play-adhan-for-times '(t nil t t t t)
+  "List, corresponding to elements of `awqat--prayer-funs' to
+determine if adhan should be played.  For example, for the
+default value of `awqat--prayer-funs', setting this variable to
+the value (t nil t t t t) would result it all sounds playing
+except ishak.  A non-nil value indicates that the adhan should
+play.  If the value is a string, it is interpreted as a specific
+file to play for the specified time.")
+(defalias 'awqat--play-adhan-for-times 'awqat-play-adhan-for-times)
+
+(defcustom awqat-adhan-file nil
+  "Path to the sound file to play when the prayer time is reached."
+  :type '(file :must-match t))
+(defalias 'awqat--adhan-file 'awqat-adhan-file)
+
 (defvar awqat--adhan-process nil
   "The process playing the current sound. Used to stop the sound.")
 
-(defvar awqat--adhan-file "adhan.mp3"
-  "Path to the sound file to play when the prayer time is reached.")
+(defvar awqat--next-adhan-timer nil
+  "Timer for the next adhan to be played.")
 
-(defun awqat--play-adhan ()
+(defun awqat--play-adhan (&optional sound-file)
   "Play the WAV sound file using Emacs' play-sound-file function."
-  (setq awqat--adhan-process
-        (make-process
-         :name "play-sound"
-         :command (list "ffplay" "-nodisp" "-autoexit" awqat--adhan-file)
-         :buffer "*sound-process*"
-         :sentinel #'awqat--adhan-process-sentinel)))
+  (let ((sound-file (or sound-file awqat-adhan-file)))
+    (if sound-file
+        (setq awqat--adhan-process (awqat--play-sound (expand-file-name sound-file)))
+      (message "Adhan playing (no sound available to play)"))
+    (awqat--adhan-update)))
 
-(defun awqat--adhan-process-sentinel (process event)
-  "Sentinel function to handle sound process events (e.g., process exit)."
-  (when (memq (process-status process) '(exit signal))
-    (setq awqat--adhan-process nil)
-    (message "Sound playback finished or stopped.")))
+(defun awqat--adhan-update ()
+  "Schedule the next adhan to play."
+  (seq-let (time _ idx) (awqat--next-time)
+    (let* ((hours-remaining (mod (+ (- time (awqat--now)) 24.0) 24.0))
+           (seconds-remaining (ceiling (* hours-remaining 60 60)))
+           (special-sound (nth idx awqat-play-adhan-for-times)))
+      (setq awqat--next-adhan-timer
+            (if (stringp special-sound)
+                (run-at-time seconds-remaining nil (lambda ()
+                                                     (awqat--play-adhan special-sound)))
+              (run-at-time seconds-remaining nil #'awqat--play-adhan))))))
 
 (defun awqat--stop-adhan ()
   "Stop the currently playing sound."
@@ -911,50 +955,14 @@ and ${hours} and ${minutes} to refer to the remaining time."
     (setq awqat--adhan-process nil)
     (message "Sound stopped.")))
 
-(defvar awqat--play-adhan-for-times '(t nil t t t t)
-  "By default, the time for Sunrise is set to nil between Fajr and Ishak. You can set it to true if you wish to include it in the schedule.")
-
-(defun awqat--extract-prayer-times (prayer-times)
-  "Extract the first element of each child list from LIST-OF-LISTS."
-  (mapcar (lambda (child-list) (car child-list)) prayer-times))
-;; Example Usage
-
-(defun awqat--play-sound-at-time (time)
-  "Schedule a sound to play at TIME.
-TIME should be in floating-point hours format (e.g., 12.266666667)."
-  (let* ((hours (floor time))                    ;; Get the hour part
-         (minutes (floor (* 60 (- time hours)))) ;; Get the minute part
-         (now (decode-time (current-time))) ;; Decode current time
-         (target-time (encode-time 0 minutes hours (nth 3 now) (nth 4 now) (nth 5 now))) ;; Target time
-         (delay (float-time (time-subtract target-time (current-time))))) ;; Calculate delay
-    (when (>= delay 1) ;; Only schedule if the time is in the future
-      (run-at-time delay nil #'awqat--play-adhan))))  ;; Play sound
-
-(defun awqat--schedule-adhan-with-prayer-times (prayer-time-list play-athan-for-times)
-  "Schedule sounds based on PLAY-ATHAN-FOR-TIMES and PRAYER-TIME-LIST.
-If PLAY-ATHAN-FOR-TIMES is `t` at a given index, sound will be scheduled at the corresponding time in PRAYER-TIME-LIST."
-  (cl-loop for (time bool) in (cl-mapcar #'list prayer-time-list play-athan-for-times) do
-           (when bool ;; If bool is `t`, schedule the sound
-             (awqat--play-sound-at-time time))))  ;; Schedule sound at the given time
-
-(defun awqat--schedule-daily-prayers (times prayers)
-  "Schedule daily prayers at 00:01 AM."
-  (run-at-time "00:01" 86400  ;; Run at 00:01 AM every day (86400 seconds in a day)
-               #'awqat--schedule-adhan-with-prayer-times
-               times
-               prayers))  ;; Pass your prayer time list and boolean list to the function
-
-(defun awqat-set-todays-prayer-times ()
-  "Fetch and store today's prayer times in `awqat-today-prayer-times`."
-  (setq awqat-todays-prayer-times (awqat--extract-prayer-times (awqat--times-for-day))))
-
-(awqat--schedule-adhan-with-prayer-times
- awqat-todays-prayer-times
- awqat--play-adhan-for-times)
-
-(awqat--schedule-daily-prayers
- awqat-todays-prayer-times
- awqat--play-adhan-for-times)
+;;;###autoload
+(define-minor-mode awqat-adhan-mode
+  "Toggle the playing of the adhan for each time."
+  :global t
+  (and awqat--next-adhan-timer (cancel-timer awqat--next-adhan-timer))
+  (awqat--stop-adhan)
+  (when awqat-adhan-mode
+    (awqat--adhan-update)))
 
 (provide 'awqat)
 ;;; awqat.el ends here
