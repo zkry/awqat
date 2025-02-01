@@ -922,7 +922,6 @@ and ${hours} and ${minutes} to refer to the remaining time."
 (defun awqat--play-sound-at-time (time)
   "Schedule a sound to play at TIME.
 TIME should be in floating-point hours format (e.g., 12.266666667)."
-  (interactive)
   (let* ((hours (floor time))                    ;; Get the hour part
          (minutes (floor (* 60 (- time hours)))) ;; Get the minute part
          (now (decode-time (current-time))) ;; Decode current time
@@ -947,7 +946,6 @@ If PLAY-ATHAN-FOR-TIMES is `t` at a given index, sound will be scheduled at the 
 
 (defun awqat-set-todays-prayer-times ()
   "Fetch and store today's prayer times in `awqat-today-prayer-times`."
-  (interactive)
   (setq awqat-todays-prayer-times (awqat--extract-prayer-times (awqat--times-for-day))))
 
 (awqat--schedule-adhan-with-prayer-times
