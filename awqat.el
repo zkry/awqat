@@ -942,14 +942,14 @@ If PLAY-ATHAN-FOR-TIMES is `t` at a given index, sound will be scheduled at the 
                times
                prayers))  ;; Pass your prayer time list and boolean list to the function
 
-;;(awqat--times-for-day)
+(defvar awqat-todays-prayer-times (awqat--extract-prayer-times (awqat--times-for-day)))
 
 (awqat--schedule-adhan-with-prayer-times
- (awqat--extract-prayer-times (awqat--times-for-day))
+ awqat-todays-prayer-times
  awqat--play-adhan-for-times)
 
 (awqat--schedule-daily-prayers
- (awqat--extract-prayer-times (awqat--times-for-day))
+ awqat-todays-prayer-times
  awqat--play-adhan-for-times)
 
 (provide 'awqat)
