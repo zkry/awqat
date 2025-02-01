@@ -46,6 +46,9 @@
   :prefix "awqat-"
   :group 'awqat)
 
+(defvar awqat-todays-prayer-times nil
+  "Holds today's prayer times.")
+
 (defcustom awqat-fajr-angle -18.0
   "The Fajr zenith angle offset (in degrees) below horizon.
 
@@ -942,7 +945,10 @@ If PLAY-ATHAN-FOR-TIMES is `t` at a given index, sound will be scheduled at the 
                times
                prayers))  ;; Pass your prayer time list and boolean list to the function
 
-(defvar awqat-todays-prayer-times (awqat--extract-prayer-times (awqat--times-for-day)))
+(defun awqat-set-todays-prayer-times ()
+  "Fetch and store today's prayer times in `awqat-today-prayer-times`."
+  (interactive)
+  (setq awqat-todays-prayer-times (awqat--extract-prayer-times (awqat--times-for-day))))
 
 (awqat--schedule-adhan-with-prayer-times
  awqat-todays-prayer-times
