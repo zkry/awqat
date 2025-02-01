@@ -941,11 +941,13 @@ file to play for the specified time.")
     (let* ((hours-remaining (mod (+ (- time (awqat--now)) 24.0) 24.0))
            (seconds-remaining (ceiling (* hours-remaining 60 60)))
            (special-sound (nth idx awqat-play-adhan-for-times)))
-      (setq awqat--next-adhan-timer
-            (if (stringp special-sound)
-                (run-at-time seconds-remaining nil (lambda ()
-                                                     (awqat--play-adhan special-sound)))
-              (run-at-time seconds-remaining nil #'awqat--play-adhan))))))
+      (if (< seconds-remaining 10) ;; to prevent duplicate runs
+          (run-at-time 60 nil #'awqat--adhan-update)
+        (setq awqat--next-adhan-timer
+              (if (stringp special-sound)
+                  (run-at-time seconds-remaining nil (lambda ()
+                                                       (awqat--play-adhan special-sound)))
+                (run-at-time seconds-remaining nil #'awqat--play-adhan)))))))
 
 (defun awqat--stop-adhan ()
   "Stop the currently playing sound."
