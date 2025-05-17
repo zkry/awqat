@@ -61,7 +61,8 @@ religious jurisprudence (al-Fiqh).
 It can also differ from a geographical region to anther.
 
 Prefer using using predefined presets suitable for your geographic area."
-  :type 'float)
+  :type 'float
+  :group 'awqat)
 
 (defcustom awqat-isha-angle -17.0
   "The Isha zenith angle offset (in degrees) below horizon.
@@ -75,19 +76,22 @@ and religious jurisprudence (al-Fiqh).
 It can also differ from a geographical region to anther.
 
 Prefer using using predefined presets suitable for your geographic area."
-  :type 'float)
+  :type 'float
+  :group 'awqat)
 
 (defcustom awqat-fajr-before-sunrise-offset 1.81
   "The Fajr time offset (in hours) before sunrise.
 
 This is applicable only when calculating Fajr offset-based approaches."
-  :type 'float)
+  :type 'float
+  :group 'awqat)
 
 (defcustom awqat-isha-after-sunset-offset 1.333
   "The Fajr time offset (in hours) after sunset.
 
 This is applicable only when calculating Isha offset-based approaches."
-  :type 'float)
+  :type 'float
+  :group 'awqat)
 
 (defcustom awqat-isha-moonsighting-method 'shafaq
   "Method to use for Isha in Moonsighting Committee Wourldwide method.
@@ -95,7 +99,8 @@ Can be `'shafaq-ahmar', `'shafaq-abyad', or `'shafaq' (which is a combination
 of Shafaq Ahmar and Abyad for high latitudes).
 
 For detailed information, see \"Syed Khalid Shaukat, Fajr and Isha, Sep 2015\"."
-  :type '(choice (const shafaq) (const shafaq-abyad) (const shafaq-ahmar)))
+  :type '(choice (const shafaq) (const shafaq-abyad) (const shafaq-ahmar))
+  :group 'awqat)
 
 (defcustom awqat-sunrise-sunset-angle -0.833
   "The sunrise/sunset zenith angle offset below horizon.
@@ -106,20 +111,23 @@ which means that the sun circle is still visible.
 The apparent radius of the sun at the horizon is 16 arcminutes,
 and the average refraction is known to be 34 arcminutes,
 which gives an offset of 50 arcminutes, hence the 0.833° value."
-  :type 'float)
+  :type 'float
+  :group 'awqat)
 
 (defcustom awqat-asr-hanafi nil
   "Use the Hanafi jurisprudence (al-Fiqh al-Hanafi) for Asr time.
 
 Default value is 'nil', corresponding to the majority opinion (al-Jomhor),
 including the Maliki, Shafii, and Hambali schools of thought."
-  :type 'boolean)
+  :type 'boolean
+  :group 'awqat)
 
 (defcustom awqat-prayer-safety-offsets (make-list 6 0.0)
   "The offset in minutes applied for the six times.
 
 List ordered as: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
-  :type 'list)
+  :type 'list
+  :group 'awqat)
 
 (defcustom awqat--prayer-funs
   (list #'awqat--prayer-fajr
@@ -129,7 +137,8 @@ List ordered as: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
         #'awqat--prayer-maghrib
         #'awqat--prayer-isha)
   "The functions used to calculate each time, a list of six elements."
-  :type 'list)
+  :type 'list
+  :group 'awqat)
 
 (defvar awqat--prayer-names
   (list "Fajr"
@@ -818,21 +827,25 @@ If FLAG is 'skip then return empty string."
 
 (defcustom awqat-update-interval 5.0
   "Interval, in seconds, of prayer times in the mode-line."
-  :type 'float)
+  :type 'float
+  :group 'awqat)
 
 (defcustom awqat-warning-duration 0.75
   "Duration to next prayer, for 'awqat-display-prayer-time-mode' to show a warning."
-  :type 'float)
+  :type 'float
+  :group 'awqat)
 
 (defcustom awqat-danger-duration 0.33
   "Duration to next prayer, for 'awqat-display-prayer-time-mode' to show a danger."
-  :type 'float)
+  :type 'float
+  :group 'awqat)
 
 (defcustom awqat-mode-line-format "﴾${hours}h${minutes}m>${prayer}﴿ "
   "Formatting string to use in mode-line.
 Use ${prayer} to refer to the next prayer name,
 and ${hours} and ${minutes} to refer to the remaining time."
-  :type 'str)
+  :type 'str
+  :group 'awqat)
 
 (defface awqat-warning-face
   '((t (:inherit warning)))
@@ -913,12 +926,15 @@ default value of `awqat--prayer-funs', setting this variable to
 the value (t nil t t t t) would result it all sounds playing
 except ishak.  A non-nil value indicates that the adhan should
 play.  If the value is a string, it is interpreted as a specific
-file to play for the specified time.")
+file to play for the specified time."
+  :group 'awqat
+  :type 'list)
 (defalias 'awqat--play-adhan-for-times 'awqat-play-adhan-for-times)
 
 (defcustom awqat-adhan-file nil
   "Path to the sound file to play when the prayer time is reached."
-  :type '(file :must-match t))
+  :type '(file :must-match t)
+  :group 'awqat)
 (defalias 'awqat--adhan-file 'awqat-adhan-file)
 
 (defvar awqat--adhan-process nil
