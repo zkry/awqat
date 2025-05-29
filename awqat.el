@@ -40,6 +40,8 @@
 (require 'calendar)
 (require 'cal-islam)
 (require 's)
+(require 'alert)
+
 
 (defgroup awqat nil
   "A package to calculate the five daily Islamic prayer times in Emacs."
@@ -148,6 +150,63 @@ List ordered as: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
         "Maghrib"
         "Isha")
   "Names of the six times.")
+
+;;; Notification settings
+(defcustom awqat-notifications-enabled t
+  "Whether to send desktop notifications for prayer times."
+  :type 'boolean
+  :group 'awqat)
+
+(defcustom awqat-notifications-for-times '(t t t t t t)
+  "List of booleans indicating whether to send notifications for each prayer time.
+The list order corresponds to: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
+  :type '(repeat boolean)
+  :group 'awqat)
+
+(defcustom awqat-notification-title "Prayer Time"
+  "Title for the prayer time notification."
+  :type 'string
+  :group 'awqat)
+
+(defcustom awqat-notification-message-format "It's time for %s"
+  "Format string for prayer time notification message.
+%s will be replaced with the prayer name."
+  :type 'string
+  :group 'awqat)
+
+(defcustom awqat-pre-notifications-enabled nil
+  "Whether to send notifications before prayer times."
+  :type 'boolean
+  :group 'awqat)
+
+(defcustom awqat-pre-notification-minutes 15
+  "Minutes before prayer time to send the pre-notification."
+  :type 'integer
+  :group 'awqat)
+
+(defcustom awqat-pre-notifications-for-times '(t t t t t t)
+  "List of booleans indicating whether to send pre-notifications for each prayer time.
+The list order corresponds to: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
+  :type '(repeat boolean)
+  :group 'awqat)
+
+(defcustom awqat-pre-notification-title "Upcoming Prayer"
+  "Title for the pre-prayer notification."
+  :type 'string
+  :group 'awqat)
+
+(defcustom awqat-pre-notification-message-format "%s will be in %d minutes"
+  "Format string for pre-prayer notification message.
+%s will be replaced with the prayer name.
+%d will be replaced with minutes remaining."
+  :type 'string
+  :group 'awqat)
+
+(defvar awqat--notification-timers nil
+  "List of timers for upcoming notifications.")
+
+(defvar awqat--pre-notification-timers nil
+  "List of timers for upcoming pre-notifications.")
 
 ;;; Preconfigured presets
 
@@ -812,6 +871,97 @@ If FLAG is 'skip then return empty string."
           (propertize pretty-time 'face '(:background "yellow"))
         pretty-time))))
 
+;;; Notification functions
+
+(defcustom awqat-alert-style nil
+  "The alert style to use for awqat notifications.
+If nil, use the default alert style. See `alert-styles' for options."
+  :type '(choice (const :tag "Default" nil)
+                 (symbol :tag "Alert style"))
+  :group 'awqat)
+
+(defun awqat--send-notification (title message)
+  "Send a desktop notification with TITLE and MESSAGE using the alert package."
+  (let ((alert-default-style (or awqat-alert-style alert-default-style)))
+    (alert message
+           :title title
+           :category 'awqat)))
+
+
+(defun awqat--schedule-prayer-notifications ()
+  "Schedule notifications for today's prayer times."
+  (when awqat-notifications-enabled
+    ;; Cancel any existing timers
+    (dolist (timer awqat--notification-timers)
+      (when (timerp timer)
+        (cancel-timer timer)))
+    (setq awqat--notification-timers nil)
+
+    ;; Schedule new timers for prayer times
+    (let ((times (awqat--times-for-day))
+          (now (float-time))
+          (notification-timers nil))
+      (dotimes (idx (length times))
+        (when (nth idx awqat-notifications-for-times)
+          (let* ((time (nth idx times))
+                 (hour (floor (car time)))
+                 (minute (floor (* 60 (- (car time) hour))))
+                 (prayer-name (nth idx awqat--prayer-names))
+                 (current-time (decode-time))
+                 (notification-time
+                  (encode-time 0 minute hour
+                              (decoded-time-day current-time)
+                              (decoded-time-month current-time)
+                              (decoded-time-year current-time))))
+            (when (> (float-time notification-time) now)
+              (let ((timer (run-at-time notification-time nil
+                                        #'awqat--send-notification
+                                        awqat-notification-title
+                                        (format awqat-notification-message-format prayer-name))))
+                (push timer notification-timers)))))
+        (setq awqat--notification-timers notification-timers)))))
+
+(defun awqat--schedule-pre-notifications ()
+  "Schedule pre-notifications for today's prayer times."
+  (when (and awqat-notifications-enabled awqat-pre-notifications-enabled)
+    ;; Cancel any existing timers
+    (dolist (timer awqat--pre-notification-timers)
+      (when (timerp timer)
+        (cancel-timer timer)))
+    (setq awqat--pre-notification-timers nil)
+
+    ;; Schedule new timers for pre-prayer notifications
+    (let ((times (awqat--times-for-day))
+          (now (float-time))
+          (pre-notification-timers nil))
+      (dotimes (idx (length times))
+        (when (nth idx awqat-pre-notifications-for-times)
+          (let* ((time (nth idx times))
+                 (hour (floor (car time)))
+                 (minute (floor (* 60 (- (car time) hour))))
+                 (pre-minute (- minute awqat-pre-notification-minutes))
+                 (pre-hour (if (< pre-minute 0)
+                              (1- hour)
+                            hour))
+                 (pre-minute (if (< pre-minute 0)
+                                (+ 60 pre-minute)
+                              pre-minute))
+                 (prayer-name (nth idx awqat--prayer-names))
+                 (current-time (decode-time))
+                 (notification-time
+                  (encode-time 0 pre-minute pre-hour
+                              (decoded-time-day current-time)
+                              (decoded-time-month current-time)
+                              (decoded-time-year current-time))))
+            (when (> (float-time notification-time) now)
+              (let ((timer (run-at-time notification-time nil
+                                        #'awqat--send-notification
+                                        awqat-pre-notification-title
+                                        (format awqat-pre-notification-message-format
+                                                prayer-name
+                                                awqat-pre-notification-minutes))))
+                (push timer pre-notification-timers)))))
+        (setq awqat--pre-notification-timers pre-notification-timers)))))
 
 ;;; Misc
 
@@ -895,8 +1045,6 @@ and ${hours} and ${minutes} to refer to the remaining time."
     (setq awqat-update-timer (run-at-time nil awqat-update-interval #'awqat-update-handler))
     (awqat-update)))
 
-
-
 ;;; Adhan Mode
 
 (defcustom awqat-audio-player "ffplay"
@@ -949,6 +1097,14 @@ file to play for the specified time."
     (if sound-file
         (setq awqat--adhan-process (awqat--play-sound (expand-file-name sound-file)))
       (message "Adhan playing (no sound available to play)"))
+    ;; Send notification for adhan if enabled
+    (when awqat-notifications-enabled
+      (let* ((next-time (awqat--next-time))
+             (idx (nth 2 next-time))
+             (prayer-name (nth idx awqat--prayer-names)))
+        (awqat--send-notification
+         awqat-notification-title
+         (format awqat-notification-message-format prayer-name))))
     (awqat--adhan-update)))
 
 (defun awqat--adhan-update ()
@@ -981,6 +1137,28 @@ file to play for the specified time."
   (awqat--stop-adhan)
   (when awqat-adhan-mode
     (awqat--adhan-update)))
+
+;;;###autoload
+(define-minor-mode awqat-notification-mode
+  "Toggle sending desktop notifications for prayer times."
+  :global t
+  :group 'awqat
+  (dolist (timer awqat--notification-timers)
+    (when (timerp timer)
+      (cancel-timer timer)))
+  (dolist (timer awqat--pre-notification-timers)
+    (when (timerp timer)
+      (cancel-timer timer)))
+  (setq awqat--notification-timers nil)
+  (setq awqat--pre-notification-timers nil)
+
+  (when awqat-notification-mode
+    (awqat--schedule-prayer-notifications)
+    (awqat--schedule-pre-notifications)
+    ;; Reschedule notifications at midnight
+    (run-at-time "00:01" (* 24 60 60) #'awqat--schedule-prayer-notifications)
+    (when awqat-pre-notifications-enabled
+      (run-at-time "00:01" (* 24 60 60) #'awqat--schedule-pre-notifications))))
 
 (provide 'awqat)
 ;;; awqat.el ends here

@@ -185,6 +185,14 @@ Here is another example that play athan sound on the scheduled time and stop wit
   (awqat-adhan-mode)
 ```
 
+
+Enable desktop notifications: 
+
+
+```lisp
+(awqat-notification-mode 1)
+```
+
 ## Viewing the times
 By calling `M-x awqat-times-for-day` you can see the six times for the day,
 alongside the remaining time for the next prayer.
