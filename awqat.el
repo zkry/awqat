@@ -119,7 +119,7 @@ which gives an offset of 50 arcminutes, hence the 0.833° value."
 (defcustom awqat-asr-hanafi nil
   "Use the Hanafi jurisprudence (al-Fiqh al-Hanafi) for Asr time.
 
-Default value is 'nil', corresponding to the majority opinion (al-Jomhor),
+Default value is `nil'', corresponding to the majority opinion (al-Jomhor),
 including the Maliki, Shafii, and Hambali schools of thought."
   :type 'boolean
   :group 'awqat)
@@ -185,8 +185,9 @@ The list order corresponds to: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
   :group 'awqat)
 
 (defcustom awqat-pre-notifications-for-times '(t t t t t t)
-  "List of booleans indicating whether to send pre-notifications for each prayer time.
-The list order corresponds to: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
+  "List of booleans indicating whether to send pre-notifications for
+each prayer time.  The list order corresponds to: (Fajr Sunrise
+Dhuhr Asr Maghrib Isha)."
   :type '(repeat boolean)
   :group 'awqat)
 
@@ -248,7 +249,8 @@ The list order corresponds to: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
   (awqat--preset-with-angles -18.0 -17.0))
 
 (defun awqat-set-preset-karachi-university-of-islamic-sciences ()
-  "Use the calculation method defined by the Karachi University of Islamic Sciences (KUIS)."
+  "Use the calculation method defined by the Karachi University
+ of Islamic Sciences (KUIS)."
   (awqat--preset-with-angles -18.0 -18.0))
 
 (defun awqat-set-preset-umm-al-qura ()
@@ -258,8 +260,8 @@ The list order corresponds to: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
                                  #'awqat--prayer-dhuhr
                                  #'awqat--prayer-asr
                                  #'awqat--prayer-maghrib
-                                 (lambda (date)
-                                   (let ((maghrib-time (awqat--prayer-maghrib date))
+                                 (lambda (d)
+                                   (let ((maghrib-time (awqat--prayer-maghrib d))
                                          (ramadan-p (eq 9 (car (awqat--islamic-from-gregorian)))))
                                      (list (+ (car maghrib-time) (if ramadan-p 2.0 1.5))
                                            (cadr maghrib-time))))))
@@ -275,14 +277,15 @@ The list order corresponds to: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
   (awqat--preset-with-angles -18.0 -17.5))
 
 (defun awqat-set-preset-institute-of-geophysics-university-of-tehran ()
-  "Use the calculation method defined by the Institute of Geophysics, University of Tehran."
+  "Use the calculation method defined by the Institute of
+ Geophysics, University of Tehran."
   (setq awqat--prayer-funs (list #'awqat--prayer-fajr
                                  #'awqat--prayer-sunrise
                                  #'awqat--prayer-dhuhr
                                  #'awqat--prayer-asr
-                                 (lambda (date)
-                                   (list (caadr (awqat-sunrise-sunset-angle date -4.0))
-                                         (awqat--timezone date)))
+                                 (lambda (d)
+                                   (list (caadr (awqat-sunrise-sunset-angle d -4.0))
+                                         (awqat--timezone d)))
                                  #'awqat--prayer-isha))
   (setq awqat-fajr-angle -17.7)
   (setq awqat-isha-angle -14.0))
@@ -292,7 +295,8 @@ The list order corresponds to: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
   (awqat--preset-with-angles -20.0 -18.0))
 
 (defun awqat-set-preset-algeria ()
-  "Use the calculation method defined by the Ministry of Religious Affairs and Wakfs, Algeria."
+  "Use the calculation method defined by the Ministry of
+ Religious Affairs and Wakfs, Algeria."
   (awqat--preset-with-angles -18.0 -17.0))
 
 (defun awqat-set-preset-morocco ()
@@ -308,23 +312,28 @@ The list order corresponds to: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
   (awqat--preset-with-angles -18.2 -18.2))
 
 (defun awqat-set-preset-jakim ()
-  "Use the calculation method defined by the Department of Islamic Development Malaysia (JAKIM)."
+  "Use the calculation method defined by the Department of
+ Islamic Development Malaysia (JAKIM)."
   (awqat--preset-with-angles -20.0 -18.0))
 
 (defun awqat-set-preset-spiritual-administration-of-muslims-russia ()
-  "Use the calculation method defined by the Spiritual Administration of Muslims, Russia (SAMR)."
+  "Use the calculation method defined by the Spiritual
+ Administration of Muslims, Russia (SAMR)."
   (awqat--preset-with-angles -16.0 -15.0))
 
 (defun awqat-set-preset-french-muslims ()
-  "Use the calculation method defined by the French Muslims (former: Union des Organisations Islamiques de France)."
+  "Use the calculation method defined by the French Muslims (former:
+ Union des Organisations Islamiques de France)."
   (awqat--preset-with-angles -12.0 -12.0))
 
 (defun awqat-set-preset-grande-mosquee-de-paris ()
-  "Use the calculation method similar to the one used by Grande Mosquée de Paris, France."
+  "Use the calculation method similar to the one used by Grande
+ Mosquée de Paris, France."
   (awqat--preset-with-angles -15.0 -13.0))
 
 (defun awqat-set-preset-isna ()
-  "Use the calculation method defined by the Islamic Society of North America (ISNA)."
+  "Use the calculation method defined by the Islamic Society of
+ North America (ISNA)."
   (awqat--preset-with-angles -15.0 -15.0))
 
 (defun awqat-set-preset-midnight ()
@@ -337,7 +346,8 @@ The list order corresponds to: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
                                  #'awqat--prayer-isha-midnight)))
 
 (defun awqat-set-preset-one-seventh-of-night ()
-  "Use the calculation method used in higher latitudes (One-seventh of night method)."
+  "Use the calculation method used in higher latitudes (One-seventh
+ of night method)."
   (setq awqat--prayer-funs (list #'awqat--prayer-fajr-one-seventh-of-night
                                  #'awqat--prayer-sunrise
                                  #'awqat--prayer-dhuhr
@@ -346,7 +356,8 @@ The list order corresponds to: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
                                  #'awqat--prayer-isha-one-seventh-of-night)))
 
 (defun awqat-set-preset-moonsighting-committee-worldwide  ()
-  "Use the calculation method defined by the Moonsighting Committee Worldwide (MCW).
+  "Use the calculation method defined by the Moonsighting
+ Committee Worldwide (MCW).
 This is a latitude and season aware method."
   (setq awqat--prayer-funs (list #'awqat--prayer-fajr-moonsighting
                                  #'awqat--prayer-sunrise
@@ -478,35 +489,35 @@ Or for today if no DAY is provided."
 
 ;;; Prayer Calculations ------------------------------------------------------------------
 
-(defun awqat--prayer-time (date prayer)
-  "Calculate a time for PRAYER idx on given DATE, applying safety offsets."
+(defun awqat--prayer-time (d prayer)
+  "Calculate a time for PRAYER idx on given date D, applying safety offsets."
   (let* ((offset (nth prayer awqat-prayer-safety-offsets))
          (fun (nth prayer awqat--prayer-funs))
-         (time (apply fun (list date))))
+         (time (apply fun (list d))))
     (list (+ (car time) (/ offset 60.0)) (cadr time))))
 
-(defun awqat--prayer-fajr-from-sunrise (date offset)
-  "Calculate the Fajr time for a given DATE, based on a OFFSET from sunrise."
-  (let ((sunrise-time (awqat--prayer-sunrise date)))
+(defun awqat--prayer-fajr-from-sunrise (d offset)
+  "Calculate the Fajr time for a given date D, based on a OFFSET from sunrise."
+  (let ((sunrise-time (awqat--prayer-sunrise d)))
     (list (- (car sunrise-time) offset)
           (cadr sunrise-time))))
 
-(defun awqat--prayer-isha-from-sunset (date offset)
-  "Calculate the Isha time for a given DATE, based on a OFFSET from sunset (Maghrib)."
-  (let ((maghrib-time (awqat--prayer-maghrib date)))
+(defun awqat--prayer-isha-from-sunset (d offset)
+  "Calculate Isha time for given date D, based on OFFSET from sunset (Maghrib)."
+  (let ((maghrib-time (awqat--prayer-maghrib d)))
     (list (+ (car maghrib-time) offset)
           (cadr maghrib-time))))
 
-(defun awqat--moonsighting-get-offset (date type)
-  "Get the offset in hours for DATE and TYPE.
-TYPE being a valid symbol for the 'awqat-isha-moonsighting-method' variable.
+(defun awqat--moonsighting-get-offset (type)
+  "Get the offset in hours for TYPE.
+TYPE being a valid symbol for the `awqat-isha-moonsighting-method' variable.
 Used by the Moonsighting Committee Worldwide method."
   (let* ((consts (awqat--moonsighting-constants type))
          (a (nth 0 consts))
          (b (nth 1 consts))
          (c (nth 2 consts))
          (d (nth 3 consts))
-         (dyy (awqat--days-since-winter-solstice date)))
+         (dyy (awqat--days-since-winter-solstice)))
     (/ (cond ((< dyy 91)
               (+ a (* (/ (- b a) 91.0) dyy)))
              ((< dyy 137)
@@ -521,8 +532,8 @@ Used by the Moonsighting Committee Worldwide method."
               (+ b (* (/ (- a b) 91.0) (- dyy 275)))))
        60.0)))
 
-(defun awqat--days-since-winter-solstice (date)
-  "Return the days count since the last winter solstice, for a given DATE."
+(defun awqat--days-since-winter-solstice ()
+  "Return the days count since the last winter solstice from today."
   (let* ((today (awqat--today))
          (date-zero-month (if (> calendar-latitude 0.0) 12 06))
          (curr-year (calendar-extract-year today))
@@ -550,238 +561,246 @@ Used by the Moonsighting Committee Worldwide method."
 ;; The following functions can be put into the awqat--prayer-funs list.
 ;; Fajr
 
-(defun awqat--prayer-fajr (date)
-  "Calculate the time of fajr for DATE using standard angle method."
-  (car (awqat-sunrise-sunset-angle date awqat-fajr-angle)))
+(defun awqat--prayer-fajr (d)
+  "Calculate the time of fajr for date D using standard angle method."
+  (car (awqat-sunrise-sunset-angle d awqat-fajr-angle)))
 
-(defun awqat--prayer-fajr-diyanet (date)
-  "Calculate the time of fajr for DATE using third-portion if lat > 45."
+(defun awqat--prayer-fajr-diyanet (d)
+  "Calculate the time of fajr for date D using third-portion if lat > 45."
   (if (< calendar-latitude 45.0)
-      (awqat--prayer-fajr date)
-    (let ((third-portion (awqat--third-portion-calc date awqat-fajr-angle))
-          (sunrise (awqat--sunrise date))
-          (timezone (awqat--timezone date)))
+      (awqat--prayer-fajr d)
+    (let ((third-portion (awqat--third-portion-calc d awqat-fajr-angle))
+          (sunrise (awqat--sunrise d))
+          (timezone (awqat--timezone d)))
       (list (if (> third-portion 1.3333)
                 (- sunrise 1.3333)
               (+ sunrise third-portion))
             timezone))))
 
-(defun awqat--prayer-fajr-angle (date)
-  "Calculate the time of fajr for DATE using angle method if necessary."
-  (if (awqat--use-angle-method-p date)
-      (let ((offset (awqat--angle-approx-offset date awqat-fajr-angle))
-            (timezone (awqat--timezone date))
-            (sunrise (awqat--sunrise date)))
+(defun awqat--prayer-fajr-angle (d)
+  "Calculate the time of fajr for date D using angle method if necessary."
+  (if (awqat--use-angle-method-p d)
+      (let ((offset (awqat--angle-approx-offset d awqat-fajr-angle))
+            (timezone (awqat--timezone d))
+            (sunrise (awqat--sunrise d)))
         (list (- sunrise offset) timezone))
-    (awqat--prayer-fajr date)))
+    (awqat--prayer-fajr d)))
 
-(defun awqat--prayer-fajr-offset (date)
-  "Calculate the time of fajr based on fixed time for given DATE."
-  (let ((sunrise (awqat--sunset date))
-        (timezone (awqat--sunset date)))
+(defun awqat--prayer-fajr-offset (d)
+  "Calculate the time of fajr based on fixed time for given date D."
+  (let ((sunrise (awqat--sunset d))
+        (timezone (awqat--sunset d)))
     (list (- sunrise awqat-fajr-before-sunrise-offset)
           timezone)))
 
-(defun awqat--prayer-fajr-one-seventh-of-night (date)
-  "Calculate the time of fajr for a given DATE.
-The one-seventh of night method is an approximation used in higher latitudes during the abnormal period."
+(defun awqat--prayer-fajr-one-seventh-of-night (d)
+  "Calculate the time of fajr for a given date D.
+The one-seventh of night method is an approximation used in
+higher latitudes during the abnormal period."
   (when (< -48.5 calendar-latitude 48.5)
     (warn "This method should only be used in latitudes beyond 48.5°N and 48.5°S."))
 
-  (let ((offset (/ (awqat-duration-of-night date) 7.0)))
-    (awqat--prayer-fajr-from-sunrise date offset)))
+  (let ((offset (/ (awqat-duration-of-night d) 7.0)))
+    (awqat--prayer-fajr-from-sunrise d offset)))
 
-(defun awqat--prayer-fajr-midnight (date)
-  "Calculate the time of fajr for a given DATE.
-The midnight method is an approximation used in higher latitudes during the abnormal period.
-It defines the Isha and Fajr times to be the same, starting at the midnight between sunset and sunrise."
+(defun awqat--prayer-fajr-midnight (d)
+  "Calculate the time of fajr for a given date D.
+The midnight method is an approximation used in higher latitudes
+during the abnormal period.  It defines the Isha and Fajr times
+to be the same, starting at the midnight between sunset and
+sunrise."
   (when (< -48.5 calendar-latitude 48.5)
     (warn "This method should only be used in latitudes beyond 48.5°N and 48.5°S."))
 
-  (let ((offset (/ (awqat-duration-of-night date) 2.0)))
-    (awqat--prayer-fajr-from-sunrise date offset)))
+  (let ((offset (/ (awqat-duration-of-night d) 2.0)))
+    (awqat--prayer-fajr-from-sunrise d offset)))
 
-(defun awqat--prayer-fajr-moonsighting (date)
-  "Calculate the time of Fajr for a given DATE.
-The Moonsighting Committee Worldwide (MCW) method is a latitude and season aware method.
-It takes into account placed in higher latitudes, up to 60°N/S."
+(defun awqat--prayer-fajr-moonsighting (d)
+  "Calculate the time of Fajr for a given date D.
+The Moonsighting Committee Worldwide (MCW) method is a latitude
+and season aware method.  It takes into account placed in higher
+latitudes, up to 60°N/S."
   (cond ((< (abs calendar-latitude) 55.0)
          ;; From equator to 55°, the 18° depression angle calculations are compared with the values
          ;; given by the functions of latitude and seasons and most favorable values are used, which
          ;; means; for Fajr, the later of the two and for Isha the earlier of the two.
-         (let* ((offset (awqat--moonsighting-get-offset date 'subh-sadiq))
-                (fajr-18 (car (awqat-sunrise-sunset-angle date -18.0))))
+         (let* ((offset (awqat--moonsighting-get-offset 'subh-sadiq))
+                (fajr-18 (car (awqat-sunrise-sunset-angle d -18.0))))
            (list (max (car fajr-18)
-                      (- (car (awqat--prayer-sunrise date)) offset))
-                 (awqat--timezone date))))
+                      (- (car (awqat--prayer-sunrise d)) offset))
+                 (awqat--timezone d))))
 
         ((and (<= 55.0 (abs calendar-latitude)) (< (abs calendar-latitude) 60.0))
-         (awqat--prayer-fajr-one-seventh-of-night date))
+         (awqat--prayer-fajr-one-seventh-of-night d))
         (t (warn "Latitudes beyond 60°N/S, hardship prevails and beyond 65°,
 the sun does not set/rise for a number of days every year."))))
 
 ;; Sunrise
 
-(defun awqat--prayer-sunrise (date)
-  "Calculate the time of the sunrise on a given DATE."
-  (list (awqat--sunrise date)
-        (awqat--timezone date)))
+(defun awqat--prayer-sunrise (d)
+  "Calculate the time of the sunrise on a given date D."
+  (list (awqat--sunrise d)
+        (awqat--timezone d)))
 
 ;; Dhuhr
 
-(defun awqat--prayer-dhuhr (date)
-  "Calculate the prayer time for dhuhr on a given DATE."
-  (awqat-solar-noon date))
+(defun awqat--prayer-dhuhr (d)
+  "Calculate the prayer time for dhuhr on a given date D."
+  (awqat-solar-noon d))
 
 ;; Asr
 
-(defun awqat--prayer-asr (date)
-  "Calculate the time of asr on DATE.
+(defun awqat--prayer-asr (d)
+  "Calculate the time of asr on date D.
 
 If `awqat-asr-hanafi' is non-nil, use double the length of noon shadow."
-  (let* ((s (awqat-length-of-shadow-at-noon date))
+  (let* ((s (awqat-length-of-shadow-at-noon d))
          (l (+ (if awqat-asr-hanafi 2 1) s))
          (h (awqat-rad-to-deg (atan (/ 1 l)))))
-    (cadr (awqat-sunrise-sunset-angle date h))))
+    (cadr (awqat-sunrise-sunset-angle d h))))
 
 ;; Maghrib
 
-(defun awqat--prayer-maghrib (date)
-  "Calculate the time of maghrib on DATE."
-  (list (awqat--sunset date)
-        (awqat--timezone date)))
+(defun awqat--prayer-maghrib (d)
+  "Calculate the time of maghrib on date D."
+  (list (awqat--sunset d)
+        (awqat--timezone d)))
 
 ;; Isha
 
-(defun awqat--prayer-isha (date)
-  "Calculate the time of isha on DATE using the standard angle method."
-  (cadr (awqat-sunrise-sunset-angle date awqat-isha-angle)))
+(defun awqat--prayer-isha (d)
+  "Calculate the time of isha on date D using the standard angle method."
+  (cadr (awqat-sunrise-sunset-angle d awqat-isha-angle)))
 
-(defun awqat--prayer-isha-diyanet (date)
-  "Calculate the time of fajr for DATE using third-portion if lat > 45."
+(defun awqat--prayer-isha-diyanet (d)
+  "Calculate the time of fajr for date D using third-portion if lat > 45."
   (if (< calendar-latitude 45.0)
-      (awqat--prayer-isha date)
-    (let ((third-portion (awqat--third-portion-calc date awqat-isha-angle))
-          (sunset (awqat--sunset date))
-          (timezone (awqat--timezone date)))
+      (awqat--prayer-isha d)
+    (let ((third-portion (awqat--third-portion-calc d awqat-isha-angle))
+          (sunset (awqat--sunset d))
+          (timezone (awqat--timezone d)))
       (list (if (> third-portion 1.3333)
                 (+ sunset 1.3333)
               (+ third-portion sunset))
             timezone))))
 
-(defun awqat--prayer-isha-angle (date)
-  "Calculate the time of fajr for DATE using angle method if necessary."
-  (if (awqat--use-angle-method-p date)
-      (let ((offset (awqat--angle-approx-offset date awqat-isha-angle))
-            (timezone (awqat--timezone date))
-            (sunset (awqat--sunrise date)))
+(defun awqat--prayer-isha-angle (d)
+  "Calculate the time of fajr for date D using angle method if necessary."
+  (if (awqat--use-angle-method-p d)
+      (let ((offset (awqat--angle-approx-offset d awqat-isha-angle))
+            (timezone (awqat--timezone d))
+            (sunset (awqat--sunrise d)))
         (list (+ sunset offset) timezone))
-    (awqat--prayer-isha date)))
+    (awqat--prayer-isha d)))
 
-(defun awqat--prayer-isha-offset (date)
-  "Calculate the time of fajr based on fixed time for given DATE."
-  (let ((sunset (awqat--sunset date))
-        (timezone (awqat--sunset date)))
+(defun awqat--prayer-isha-offset (d)
+  "Calculate the time of fajr based on fixed time for given date D."
+  (let ((sunset (awqat--sunset d))
+        (timezone (awqat--sunset d)))
     (list (+ sunset awqat-isha-after-sunset-offset)
           timezone)))
 
-(defun awqat--prayer-isha-midnight (date)
-  "Calculate the time of isha for a given DATE.
-The midnight method is an approximation used in higher latitudes during the abnormal period.
-It defines the Isha and Fajr times to be the same, starting at the midnight between sunset and sunrise."
-  (awqat--prayer-fajr-midnight date))
+(defun awqat--prayer-isha-midnight (d)
+  "Calculate the time of isha for a given date D.
+The midnight method is an approximation used in higher latitudes
+during the abnormal period.  It defines the Isha and Fajr times
+to be the same, starting at the midnight between sunset and
+sunrise."
+  (awqat--prayer-fajr-midnight d))
 
-(defun awqat--prayer-isha-one-seventh-of-night (date)
-  "Return the Isha time for a given DATE.
-The one-seventh of night method is an approximation used in higher latitudes during the abnormal period."
+(defun awqat--prayer-isha-one-seventh-of-night (d)
+  "Return the Isha time for a given date D.
+The one-seventh of night method is an approximation used in
+higher latitudes during the abnormal period."
   (when (< -48.5 calendar-latitude 48.5)
     (warn "This method should only be used in latitudes beyond 48.5°N and 48.5°S."))
 
-  (let ((offset (/ (awqat-duration-of-night date) 7.0)))
-    (awqat--prayer-isha-from-sunset date offset)))
+  (let ((offset (/ (awqat-duration-of-night d) 7.0)))
+    (awqat--prayer-isha-from-sunset d offset)))
 
-(defun awqat--prayer-isha-moonsighting (date)
-  "Calculate the time of Isha for a given DATE.
-The Moonsighting Committee Worldwide (MCW) method is a latitude and season aware method.
-It takes into account placed in higher latitudes, up to 60°N/S."
+(defun awqat--prayer-isha-moonsighting (d)
+  "Calculate the time of Isha for a given date D.
+The Moonsighting Committee Worldwide (MCW) method is a latitude
+and season aware method.  It takes into account placed in higher
+latitudes, up to 60°N/S."
   (cond ((< (abs calendar-latitude) 55.0)
          ;; From equator to 55°, the 18° depression angle calculations are compared with the values
          ;; given by the functions of latitude and seasons and most favorable values are used, which
          ;; means; for Fajr, the later of the two and for Isha the earlier of the two.
-         (let* ((offset (awqat--moonsighting-get-offset date awqat-isha-moonsighting-method))
-                (isha-18 (cadr (awqat-sunrise-sunset-angle date -18.0))))
+         (let* ((offset (awqat--moonsighting-get-offset awqat-isha-moonsighting-method))
+                (isha-18 (cadr (awqat-sunrise-sunset-angle d -18.0))))
            (list (awqat--isha-time-min
-                  date (car isha-18) (+ (car (awqat--prayer-maghrib date)) offset))
-                 (awqat--timezone date))))
+                  d (car isha-18) (+ (car (awqat--prayer-maghrib d)) offset))
+                 (awqat--timezone d))))
         ((and (<= 55.0 (abs calendar-latitude)) (< (abs calendar-latitude) 60.0))
-         (awqat--prayer-isha-one-seventh-of-night date))
+         (awqat--prayer-isha-one-seventh-of-night d))
         (t (warn "Latitudes beyond 60°N/S, hardship prevails and beyond 65°,
 the sun does not set/rise for a number of days every year."))))
 
 ;;; Time Calculations --------------------------------------------------------------------
 
-(defun awqat--angle-approx-offset (date angle)
-  "Calculate the time of isha for DATE at with ANGLE using andle method.
+(defun awqat--angle-approx-offset (d angle)
+  "Calculate the time of isha for date D at with ANGLE using andle method.
 
 This method calculates the time based on a portion of angle/60 of the night."
-  (let* ((night-duration (awqat-duration-of-night date)))
+  (let* ((night-duration (awqat-duration-of-night d)))
     (/ (* (abs angle) night-duration) 60)))
 
-(defun awqat--third-portion-calc (date angle)
-  "Calculate the time of isha for DATE with ANGLE using third portion method.
+(defun awqat--third-portion-calc (d angle)
+  "Calculate the time of isha for date D with ANGLE using third portion method.
 Calculate fajr if IS-ISHA is false.
 
-This method is considered according only if calendar latitude is greater than 45deg."
-  (let* ((sunset (awqat--sunset date))
-         (fecri-sadik (caadr (awqat-sunrise-sunset-angle date angle))))
+This method is considered only if calendar latitude is greater than 45deg."
+  (let* ((sunset (awqat--sunset d))
+         (fecri-sadik (caadr (awqat-sunrise-sunset-angle d angle))))
     (/ (mod (- (+ fecri-sadik 24.0) sunset) 24.0) 3)))
 
-(defun awqat--timezone (date)
-  "Return the timezone used to calculate times on DATE."
-  (cadar (awqat-sunrise-sunset date)))
+(defun awqat--timezone (d)
+  "Return the timezone used to calculate times on date D."
+  (cadar (awqat-sunrise-sunset d)))
 
-(defun awqat--sunrise (date)
-  "Calculate the sunrise for a given DATE."
-  (caar (awqat-sunrise-sunset date)))
+(defun awqat--sunrise (d)
+  "Calculate the sunrise for a given date D."
+  (caar (awqat-sunrise-sunset d)))
 
-(defun awqat--sunset (date)
-  "Calculate the sunset for a given DATE."
-  (caadr (awqat-sunrise-sunset date)))
+(defun awqat--sunset (d)
+  "Calculate the sunset for a given date D."
+  (caadr (awqat-sunrise-sunset d)))
 
-(defun awqat--use-angle-method-p (date)
-  "Determine if on DATE, the angle method for isha/fajr should be used."
-  (let* ((isha (caadr (awqat-sunrise-sunset-angle date awqat-isha-angle)))
-         (fajr (caar (awqat-sunrise-sunset-angle date awqat-fajr-angle))))
+(defun awqat--use-angle-method-p (d)
+  "Determine if on date D, the angle method for isha/fajr should be used."
+  (let* ((isha (caadr (awqat-sunrise-sunset-angle d awqat-isha-angle)))
+         (fajr (caar (awqat-sunrise-sunset-angle d awqat-fajr-angle))))
     (if (or (not isha) (not fajr))
         t
-      (let* ((isha-offset (awqat--angle-approx-offset date awqat-isha-angle))
-             (sunset (awqat--sunset date))
+      (let* ((isha-offset (awqat--angle-approx-offset d awqat-isha-angle))
+             (sunset (awqat--sunset d))
              (isha-angle (+ sunset isha-offset))
-             (fajr-offset (awqat--angle-approx-offset date awqat-fajr-angle))
-             (sunrise (awqat--sunrise date))
+             (fajr-offset (awqat--angle-approx-offset d awqat-fajr-angle))
+             (sunrise (awqat--sunrise d))
              (fajr-angle (- sunrise fajr-offset))
              (isha-fajr-diff (mod (- (+ 24.0 fajr) isha) 24)) ;
              (isha-fajr-angle-diff (- (+ 24.0 fajr-angle) isha-angle))) ;
         (> isha-fajr-angle-diff isha-fajr-diff)))))
 
-(defun awqat--isha-time-min (date time1 time2)
-  "Works like `min', used to compare isha TIME1 and TIME2 for DATE.
+(defun awqat--isha-time-min (d time1 time2)
+  "Works like `min', used to compare isha TIME1 and TIME2 for date D.
 This takes into account the midnight comparaison, so 23.0 is before 00.2.
 Do not use for times other than isha."
-  (let* ((sunset (awqat--sunset date))
+  (let* ((sunset (awqat--sunset d))
          (t1 (if (< time1 sunset) (+ 24.0 time1) time1))
          (t2 (if (< time2 sunset) (+ 24.0 time2) time2)))
     (if (< t1 t2) time1 time2)))
 
 ;;; Astronomical Calculations -----------------------------------------------------------
 
-(defun awqat-sunrise-sunset (date)
-  "Calculate the times of maghrib and imsak for DATE."
-  (awqat-sunrise-sunset-angle date awqat-sunrise-sunset-angle))
+(defun awqat-sunrise-sunset (d)
+  "Calculate the times of maghrib and imsak for date D."
+  (awqat-sunrise-sunset-angle d awqat-sunrise-sunset-angle))
 
-(defun awqat-height-of-sun-at-noon (date)
-  "Calculates the height of at solar noon on DATE."
-  (let* ((exact-local-noon (solar-exact-local-noon date))
+(defun awqat-height-of-sun-at-noon (d)
+  "Calculates the height of at solar noon on date D."
+  (let* ((exact-local-noon (solar-exact-local-noon d))
          (t0 (solar-julian-ut-centuries (car exact-local-noon)))
          (ut (cadr exact-local-noon))
 
@@ -791,9 +810,10 @@ Do not use for times other than isha."
     hnoon))
 
 ;; modified from solar.el
-(defun awqat-sunrise-sunset-angle (date angle)
-  "Calculate the sunrise and sunset on given DATE (ex (7 22 2019)) with ANGLE above horizon."
-  (let ((res (let* ((exact-local-noon (solar-exact-local-noon date))
+(defun awqat-sunrise-sunset-angle (d angle)
+  "Calculate sunrise/sunset on date D with ANGLE above horizon.
+Example of date: (7 22 2019)"
+  (let ((res (let* ((exact-local-noon (solar-exact-local-noon d))
                     (t0 (solar-julian-ut-centuries (car exact-local-noon)))
                     (equator-rise-set
                      (progn (setq solar-sidereal-time-greenwich-midnight
@@ -811,9 +831,9 @@ Do not use for times other than isha."
                         (calendar-latitude)
                         (calendar-longitude) angle)))
                     (rise-time (car rise-set))
-                    (adj-rise (if rise-time (dst-adjust-time date rise-time)))
+                    (adj-rise (if rise-time (dst-adjust-time d rise-time)))
                     (set-time (cadr rise-set))
-                    (adj-set (if set-time (dst-adjust-time date set-time)))
+                    (adj-set (if set-time (dst-adjust-time d set-time)))
                     (length (nth 2 rise-set)))
                (list
                 (and rise-time (cdr adj-rise))
@@ -821,13 +841,13 @@ Do not use for times other than isha."
                 (solar-daylight length)))))
     (if (car res)
         res
-      (let ((solar-noon (awqat-solar-noon date)))
+      (let ((solar-noon (awqat-solar-noon d)))
         (list solar-noon solar-noon)))))
 
-(defun awqat-duration-of-night (date)
-  "Return the duration from sunset to sunset for a given DATE.
+(defun awqat-duration-of-night (d)
+  "Return the duration from sunset to sunset for a given date D.
 Adapted from `solar-sunrise-and-sunset'."
-  (let* ((rise-set (awqat-sunrise-sunset date))
+  (let* ((rise-set (awqat-sunrise-sunset d))
          (rise-time (caar rise-set))
          (set-time (caadr rise-set)))
     (if (not (and rise-time set-time))
@@ -839,17 +859,17 @@ Adapted from `solar-sunrise-and-sunset'."
           24) ; no day
       (- (+ rise-time 24.0) set-time))))
 
-(defun awqat-solar-noon (date)
-  "Calculate the time of Zuhr on DATE."
-  (let* ((exact-local-noon (solar-exact-local-noon date))
-         (midday-time (dst-adjust-time date (cadr exact-local-noon)))
+(defun awqat-solar-noon (d)
+  "Calculate the time of Zuhr on date D."
+  (let* ((exact-local-noon (solar-exact-local-noon d))
+         (midday-time (dst-adjust-time d (cadr exact-local-noon)))
          (base-time (cadr midday-time)))
     (setcar (cdr midday-time) (+ base-time (/ calendar-time-zone 60.0)))
     (cdr midday-time)))
 
-(defun awqat-length-of-shadow-at-noon (date)
-  "Calculates the relative length of an objects shadow at solar noon on DATE."
-  (let ((hn (cadr (awqat-height-of-sun-at-noon date))))
+(defun awqat-length-of-shadow-at-noon (d)
+  "Calculates the relative length of an objects shadow at solar noon on date D."
+  (let ((hn (cadr (awqat-height-of-sun-at-noon d))))
     (/ 1 (tan (awqat-deg-to-rad hn)))))
 
 (defun awqat-rad-to-deg (x)
@@ -863,7 +883,7 @@ Adapted from `solar-sunrise-and-sunset'."
 (defun awqat-pretty-time (time &optional flag)
   "Format TIME to human readable form and colored if FLAG is not nil.
 
-If FLAG is 'skip then return empty string."
+If FLAG is the symbol `skip' then return empty string."
   (if (eq flag 'skip)
       ""
     (let ((pretty-time (if time (apply 'solar-time-string time) "---")))
@@ -965,10 +985,10 @@ If nil, use the default alert style. See `alert-styles' for options."
 
 ;;; Misc
 
-(defun awqat--islamic-from-gregorian (&optional date)
-  "Get Islamic Hijri date from a Gregorian DATE."
+(defun awqat--islamic-from-gregorian (&optional d)
+  "Get Islamic Hijri date from a Gregorian date D."
   (calendar-islamic-from-absolute (calendar-absolute-from-gregorian
-                                   (or date (calendar-current-date)))))
+                                   (or d (calendar-current-date)))))
 
 ;;; awqat-display-prayer-time-mode
 
@@ -981,12 +1001,12 @@ If nil, use the default alert style. See `alert-styles' for options."
   :group 'awqat)
 
 (defcustom awqat-warning-duration 0.75
-  "Duration to next prayer, for 'awqat-display-prayer-time-mode' to show a warning."
+  "Duration to next prayer, for `awqat-display-prayer-time-mode' to show a warning."
   :type 'float
   :group 'awqat)
 
 (defcustom awqat-danger-duration 0.33
-  "Duration to next prayer, for 'awqat-display-prayer-time-mode' to show a danger."
+  "Duration to next prayer, for `awqat-display-prayer-time-mode' to show a danger."
   :type 'float
   :group 'awqat)
 
