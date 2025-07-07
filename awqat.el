@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2019-2022 Zachary Romero
 
-;; Package-Requires: ((emacs "27.1"))
+;; Package-Requires: ((emacs "27.1") (s "1.13.0"))
 ;; Package-Version: 20250131.162501
 ;; Author: Zachary Romero <zacromero@posteo.net>
 ;; Contributor: Abdelhak Bougouffa <abdelhak.bougouffa@universite-paris-saclay.fr>
@@ -119,7 +119,7 @@ which gives an offset of 50 arcminutes, hence the 0.833° value."
 (defcustom awqat-asr-hanafi nil
   "Use the Hanafi jurisprudence (al-Fiqh al-Hanafi) for Asr time.
 
-Default value is `nil'', corresponding to the majority opinion (al-Jomhor),
+Default value is nil, corresponding to the majority opinion (al-Jomhor),
 including the Maliki, Shafii, and Hambali schools of thought."
   :type 'boolean
   :group 'awqat)
@@ -131,7 +131,7 @@ List ordered as: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
   :type 'list
   :group 'awqat)
 
-(defcustom awqat--prayer-funs
+(defcustom awqat-prayer-funs
   (list #'awqat--prayer-fajr
         #'awqat--prayer-sunrise
         #'awqat--prayer-dhuhr
@@ -141,6 +141,8 @@ List ordered as: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
   "The functions used to calculate each time, a list of six elements."
   :type 'list
   :group 'awqat)
+
+(make-obsolete-variable 'awqat--prayer-funs 'awqat-prayer-funs "1.0.0")
 
 (defvar awqat--prayer-names
   (list "Fajr"
@@ -185,8 +187,8 @@ The list order corresponds to: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
   :group 'awqat)
 
 (defcustom awqat-pre-notifications-for-times '(t t t t t t)
-  "List of booleans indicating whether to send pre-notifications for
-each prayer time.  The list order corresponds to: (Fajr Sunrise
+  "List of booleans indicating whether to send pre-notifications.
+Used for each prayer time.  The list order corresponds to: (Fajr Sunrise
 Dhuhr Asr Maghrib Isha)."
   :type '(repeat boolean)
   :group 'awqat)
@@ -213,7 +215,7 @@ Dhuhr Asr Maghrib Isha)."
 
 (defun awqat-use-angle-based-method ()
   "Set the calculation for Isha and Fajr to be angle based."
-  (setq awqat--prayer-funs (list #'awqat--prayer-fajr
+  (setq awqat-prayer-funs (list #'awqat--prayer-fajr
                                  #'awqat--prayer-sunrise
                                  #'awqat--prayer-dhuhr
                                  #'awqat--prayer-asr
@@ -222,7 +224,7 @@ Dhuhr Asr Maghrib Isha)."
 
 (defun awqat-use-time-offset-method ()
   "Set the calculation for Isha and Fajr to be hours before/after based."
-  (setq awqat--prayer-funs (list #'awqat--prayer-fajr-offset
+  (setq awqat-prayer-funs (list #'awqat--prayer-fajr-offset
                                  #'awqat--prayer-sunrise
                                  #'awqat--prayer-dhuhr
                                  #'awqat--prayer-asr
@@ -231,7 +233,7 @@ Dhuhr Asr Maghrib Isha)."
 
 (defun awqat-set-preset-diyanet ()
   "Set the calculation method to be similar to the Muslim Pro app."
-  (setq awqat--prayer-funs (list #'awqat--prayer-fajr
+  (setq awqat-prayer-funs (list #'awqat--prayer-fajr
                                  #'awqat--prayer-sunrise
                                  #'awqat--prayer-dhuhr
                                  #'awqat--prayer-asr
@@ -249,13 +251,12 @@ Dhuhr Asr Maghrib Isha)."
   (awqat--preset-with-angles -18.0 -17.0))
 
 (defun awqat-set-preset-karachi-university-of-islamic-sciences ()
-  "Use the calculation method defined by the Karachi University
- of Islamic Sciences (KUIS)."
+  "Use calculation method by Karachi University of Islamic Sciences (KUIS)."
   (awqat--preset-with-angles -18.0 -18.0))
 
 (defun awqat-set-preset-umm-al-qura ()
   "Use the calculation method defined by Umm al-Qura University, Makkah."
-  (setq awqat--prayer-funs (list #'awqat--prayer-fajr
+  (setq awqat-prayer-funs (list #'awqat--prayer-fajr
                                  #'awqat--prayer-sunrise
                                  #'awqat--prayer-dhuhr
                                  #'awqat--prayer-asr
@@ -277,9 +278,8 @@ Dhuhr Asr Maghrib Isha)."
   (awqat--preset-with-angles -18.0 -17.5))
 
 (defun awqat-set-preset-institute-of-geophysics-university-of-tehran ()
-  "Use the calculation method defined by the Institute of
- Geophysics, University of Tehran."
-  (setq awqat--prayer-funs (list #'awqat--prayer-fajr
+  "Use calculation method by the Institute of Geophysics, University of Tehran."
+  (setq awqat-prayer-funs (list #'awqat--prayer-fajr
                                  #'awqat--prayer-sunrise
                                  #'awqat--prayer-dhuhr
                                  #'awqat--prayer-asr
@@ -295,8 +295,7 @@ Dhuhr Asr Maghrib Isha)."
   (awqat--preset-with-angles -20.0 -18.0))
 
 (defun awqat-set-preset-algeria ()
-  "Use the calculation method defined by the Ministry of
- Religious Affairs and Wakfs, Algeria."
+  "Use calculation method by Ministry of Religious Affairs and Wakfs, Algeria."
   (awqat--preset-with-angles -18.0 -17.0))
 
 (defun awqat-set-preset-morocco ()
@@ -312,33 +311,29 @@ Dhuhr Asr Maghrib Isha)."
   (awqat--preset-with-angles -18.2 -18.2))
 
 (defun awqat-set-preset-jakim ()
-  "Use the calculation method defined by the Department of
- Islamic Development Malaysia (JAKIM)."
+  "Use calc method by Department of Islamic Development Malaysia (JAKIM)."
   (awqat--preset-with-angles -20.0 -18.0))
 
 (defun awqat-set-preset-spiritual-administration-of-muslims-russia ()
-  "Use the calculation method defined by the Spiritual
- Administration of Muslims, Russia (SAMR)."
+  "Use calculation method by Spiritual Administration of Muslims, Russia (SAMR)."
   (awqat--preset-with-angles -16.0 -15.0))
 
 (defun awqat-set-preset-french-muslims ()
-  "Use the calculation method defined by the French Muslims (former:
- Union des Organisations Islamiques de France)."
+  "Use calculation method by the French Muslims.
+Former: Union des Organisations Islamiques de France."
   (awqat--preset-with-angles -12.0 -12.0))
 
 (defun awqat-set-preset-grande-mosquee-de-paris ()
-  "Use the calculation method similar to the one used by Grande
- Mosquée de Paris, France."
+  "Use calculation method similar to one used by Grande Mosquée de Paris, Fr."
   (awqat--preset-with-angles -15.0 -13.0))
 
 (defun awqat-set-preset-isna ()
-  "Use the calculation method defined by the Islamic Society of
- North America (ISNA)."
+  "Use calculation method by Islamic Society of North America (ISNA)."
   (awqat--preset-with-angles -15.0 -15.0))
 
 (defun awqat-set-preset-midnight ()
   "Use the calculation method used in higher latitudes (Midnight method)."
-  (setq awqat--prayer-funs (list #'awqat--prayer-fajr-midnight
+  (setq awqat-prayer-funs (list #'awqat--prayer-fajr-midnight
                                  #'awqat--prayer-sunrise
                                  #'awqat--prayer-dhuhr
                                  #'awqat--prayer-asr
@@ -346,9 +341,8 @@ Dhuhr Asr Maghrib Isha)."
                                  #'awqat--prayer-isha-midnight)))
 
 (defun awqat-set-preset-one-seventh-of-night ()
-  "Use the calculation method used in higher latitudes (One-seventh
- of night method)."
-  (setq awqat--prayer-funs (list #'awqat--prayer-fajr-one-seventh-of-night
+  "Use calculation method for higher latitudes (One-seventh of night method)."
+  (setq awqat-prayer-funs (list #'awqat--prayer-fajr-one-seventh-of-night
                                  #'awqat--prayer-sunrise
                                  #'awqat--prayer-dhuhr
                                  #'awqat--prayer-asr
@@ -356,10 +350,9 @@ Dhuhr Asr Maghrib Isha)."
                                  #'awqat--prayer-isha-one-seventh-of-night)))
 
 (defun awqat-set-preset-moonsighting-committee-worldwide  ()
-  "Use the calculation method defined by the Moonsighting
- Committee Worldwide (MCW).
+  "Use calculation method defined by the Moonsighting Committee Worldwide (MCW).
 This is a latitude and season aware method."
-  (setq awqat--prayer-funs (list #'awqat--prayer-fajr-moonsighting
+  (setq awqat-prayer-funs (list #'awqat--prayer-fajr-moonsighting
                                  #'awqat--prayer-sunrise
                                  #'awqat--prayer-dhuhr
                                  #'awqat--prayer-asr
@@ -372,7 +365,7 @@ This is a latitude and season aware method."
 
 (defun awqat--preset-with-angles (fajr isha)
   "Use the standard angle method calculation with FAJR and ISHA angles."
-  (setq awqat--prayer-funs (list #'awqat--prayer-fajr
+  (setq awqat-prayer-funs (list #'awqat--prayer-fajr
                                  #'awqat--prayer-sunrise
                                  #'awqat--prayer-dhuhr
                                  #'awqat--prayer-asr
@@ -437,7 +430,7 @@ This is a latitude and season aware method."
 Or for today if no DAY is provided."
   (let ((day (or day (awqat--today)))
         (times '()))
-    (dolist (time-idx (number-sequence 0 (1- (length awqat--prayer-funs))))
+    (dolist (time-idx (number-sequence 0 (1- (length awqat-prayer-funs))))
       (let ((time (awqat--prayer-time day time-idx)))
         (push time times)))
     (nreverse times)))
@@ -492,7 +485,7 @@ Or for today if no DAY is provided."
 (defun awqat--prayer-time (d prayer)
   "Calculate a time for PRAYER idx on given date D, applying safety offsets."
   (let* ((offset (nth prayer awqat-prayer-safety-offsets))
-         (fun (nth prayer awqat--prayer-funs))
+         (fun (nth prayer awqat-prayer-funs))
          (time (apply fun (list d))))
     (list (+ (car time) (/ offset 60.0)) (cadr time))))
 
@@ -558,7 +551,7 @@ Used by the Moonsighting Committee Worldwide method."
             ('shafaq
              '((75.0 25.60) (75.0 02.05) (75.0 -9.21) (75.0 06.14))))))
 
-;; The following functions can be put into the awqat--prayer-funs list.
+;; The following functions can be put into the awqat-prayer-funs list.
 ;; Fajr
 
 (defun awqat--prayer-fajr (d)
@@ -886,7 +879,7 @@ Adapted from `solar-sunrise-and-sunset'."
 If FLAG is the symbol `skip' then return empty string."
   (if (eq flag 'skip)
       ""
-    (let ((pretty-time (if time (apply 'solar-time-string time) "---")))
+    (let ((pretty-time (if time (apply #'solar-time-string time) "---")))
       (if flag
           (propertize pretty-time 'face '(:background "yellow"))
         pretty-time))))
@@ -895,7 +888,7 @@ If FLAG is the symbol `skip' then return empty string."
 
 (defcustom awqat-alert-style nil
   "The alert style to use for awqat notifications.
-If nil, use the default alert style. See `alert-styles' for options."
+If nil, use the default alert style.  See `alert-styles' for options."
   :type '(choice (const :tag "Default" nil)
                  (symbol :tag "Alert style"))
   :group 'awqat)
@@ -1028,12 +1021,15 @@ and ${hours} and ${minutes} to refer to the remaining time."
   :group 'awqat)
 
 (defun awqat--get-face-from-duration (duration)
+  "Return face to use for display based on remaining DURATION.
+DURATION should be a floating-point number representing number of hours."
   (cond
    ((< duration awqat-danger-duration) 'awqat-danger-face)
    ((< duration awqat-warning-duration) 'awqat-warning-face)
    (t nil)))
 
 (defun awqat-update ()
+  "Update mode-line display for remaining prayer time."
   (let ((next-time (awqat--next-time)))
     (seq-let (time _ idx) next-time
       (let* ((name (nth idx awqat--prayer-names))
@@ -1048,6 +1044,7 @@ and ${hours} and ${minutes} to refer to the remaining time."
     (force-mode-line-update t)))
 
 (defun awqat-update-handler ()
+  "Update handler for mode-line display of prayer time."
   (awqat-update)
   (sit-for 0))
 
@@ -1088,31 +1085,32 @@ The program to use is specified in the variable `awqat-audio-player'."
                                    cmd-args))))
 
 (defcustom awqat-play-adhan-for-times '(t nil t t t t)
-  "List, corresponding to elements of `awqat--prayer-funs' to
-determine if adhan should be played.  For example, for the
-default value of `awqat--prayer-funs', setting this variable to
+  "List, corresponding to elements of `awqat-prayer-funs'.
+Used to determine if adhan should be played.  For example, for the
+default value of `awqat-prayer-funs', setting this variable to
 the value (t nil t t t t) would result it all sounds playing
 except ishak.  A non-nil value indicates that the adhan should
 play.  If the value is a string, it is interpreted as a specific
 file to play for the specified time."
   :group 'awqat
   :type 'list)
-(defalias 'awqat--play-adhan-for-times 'awqat-play-adhan-for-times)
+(defalias 'awqat--play-adhan-for-times #'awqat-play-adhan-for-times)
 
 (defcustom awqat-adhan-file nil
   "Path to the sound file to play when the prayer time is reached."
   :type '(file :must-match t)
   :group 'awqat)
-(defalias 'awqat--adhan-file 'awqat-adhan-file)
+(defalias 'awqat--adhan-file #'awqat-adhan-file)
 
 (defvar awqat--adhan-process nil
-  "The process playing the current sound. Used to stop the sound.")
+  "The process playing the current sound.  Used to stop the sound.")
 
 (defvar awqat--next-adhan-timer nil
   "Timer for the next adhan to be played.")
 
 (defun awqat--play-adhan (&optional sound-file)
-  "Play the WAV sound file using Emacs' play-sound-file function."
+  "Play the WAV SOUND-FILE using Emacs' `play-sound-file' function.
+If no SOUND-FILE is provided, use `awqat-adhan-file'."
   (let ((sound-file (or sound-file awqat-adhan-file)))
     (if sound-file
         (setq awqat--adhan-process (awqat--play-sound (expand-file-name sound-file)))
