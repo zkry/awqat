@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2019-2022 Zachary Romero
 
-;; Package-Requires: ((emacs "27.1") (s "1.13.0") (alert "1.3
+;; Package-Requires: ((emacs "27.1") (s "1.13.0") (alert "1.3"))
 ;; Package-Version: 20250131.162501
 ;; Author: Zachary Romero <zacromero@posteo.net>
 ;; Contributor: Abdelhak Bougouffa <abdelhak.bougouffa@universite-paris-saclay.fr>
