@@ -128,7 +128,7 @@ including the Maliki, Shafii, and Hambali schools of thought."
   "The offset in minutes applied for the six times.
 
 List ordered as: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
-  :type 'list
+  :type '(list float)
   :group 'awqat)
 
 (defcustom awqat-prayer-funs
@@ -139,7 +139,7 @@ List ordered as: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
         #'awqat--prayer-maghrib
         #'awqat--prayer-isha)
   "The functions used to calculate each time, a list of six elements."
-  :type 'list
+  :type '(list function)
   :group 'awqat)
 
 (make-obsolete-variable 'awqat--prayer-funs 'awqat-prayer-funs "1.0.0")
@@ -447,7 +447,8 @@ Or for today if no DAY is provided."
       (append (car (awqat--times-for-day (awqat--tomorrow))) (list 0)))))
 
 (with-suppressed-warnings ((lexical date))
-  (defvar date))
+  (defvar date)
+  (defvar org-agenda-show-future-repeats))
 
 (defun awqat--diary-prayer (prayer)
   "Display prayer time for PRAYER (index from 0 to 5)."
@@ -1093,14 +1094,14 @@ except ishak.  A non-nil value indicates that the adhan should
 play.  If the value is a string, it is interpreted as a specific
 file to play for the specified time."
   :group 'awqat
-  :type 'list)
-(defalias 'awqat--play-adhan-for-times #'awqat-play-adhan-for-times)
+  :type '(list boolean))
+(defalias 'awqat--play-adhan-for-times 'awqat-play-adhan-for-times)
 
 (defcustom awqat-adhan-file nil
   "Path to the sound file to play when the prayer time is reached."
   :type '(file :must-match t)
   :group 'awqat)
-(defalias 'awqat--adhan-file #'awqat-adhan-file)
+(defalias 'awqat--adhan-file 'awqat-adhan-file)
 
 (defvar awqat--adhan-process nil
   "The process playing the current sound.  Used to stop the sound.")
