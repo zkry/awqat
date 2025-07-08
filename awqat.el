@@ -1095,13 +1095,15 @@ play.  If the value is a string, it is interpreted as a specific
 file to play for the specified time."
   :group 'awqat
   :type '(list boolean))
-(defalias 'awqat--play-adhan-for-times 'awqat-play-adhan-for-times)
+
+(make-obsolete-variable 'awqat--play-adhan-for-times 'awqat-play-adhan-for-times "1.0.0")
 
 (defcustom awqat-adhan-file nil
   "Path to the sound file to play when the prayer time is reached."
   :type '(file :must-match t)
   :group 'awqat)
 (defalias 'awqat--adhan-file 'awqat-adhan-file)
+(make-obsolete-variable 'awqat--adhan-file 'awqat-adhan-file "1.0.0")
 
 (defvar awqat--adhan-process nil
   "The process playing the current sound.  Used to stop the sound.")
