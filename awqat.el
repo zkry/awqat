@@ -1102,7 +1102,7 @@ file to play for the specified time."
   "Path to the sound file to play when the prayer time is reached."
   :type '(file :must-match t)
   :group 'awqat)
-(defalias 'awqat--adhan-file 'awqat-adhan-file)
+
 (make-obsolete-variable 'awqat--adhan-file 'awqat-adhan-file "1.0.0")
 
 (defvar awqat--adhan-process nil
