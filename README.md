@@ -8,7 +8,7 @@ Awqat is now available in MELPA under the name [awqat](https://melpa.org/#/awqat
 
 ### Installation from source
 
-You can install awqat from source using the following use-package call (note this requires a more recent Emacs version as the :vc option was added fairly recently):
+You can install awqat from source using the following use-package call (note this requires Emacs version 30+):
 
 ```lisp
 (use-package awqat
