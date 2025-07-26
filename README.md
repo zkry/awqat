@@ -6,6 +6,18 @@ includes also a mode line mode to show the remaining time for the next prayer.
 
 Awqat is now available in MELPA under the name [awqat](https://melpa.org/#/awqat).  You can install it using your preferred method (Elpaca, straight, M-x list-packages, etc.)
 
+### Installation from source
+
+You can install awqat from source using the following use-package call (note this requires a more recent Emacs version as the :vc option was added fairly recently):
+
+```lisp
+(use-package awqat
+  :ensure t
+  :vc (:url "https://github.com/zkry/awqat"
+       :rev :newest))
+```
+
+
 ### Installation for Spacemacs
 If you are using [Spacemacs](https://github.com/syl20bnr/spacemacs) you can
 easily install this package by putting the following in the
