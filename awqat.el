@@ -239,8 +239,12 @@ Dhuhr Asr Maghrib Isha)."
                                  #'awqat--prayer-asr
                                  #'awqat--prayer-maghrib
                                  #'awqat--prayer-isha))
-  (setq awqat-fajr-angle -18.15)
-  (setq awqat-isha-angle -13.94))
+  (setq awqat-asr-hanafi nil)
+  (setq awqat-fajr-angle -18.00)
+  (setq awqat-isha-angle -17.00)
+  (setq awqat-sunrise-sunset-angle -2.0)
+  (setq awqat-prayer-safety-offsets
+        '(0.0 0.0 5.0 6.0 0.0 0.0)))
 
 (defun awqat-set-preset-muslim-pro ()
   "Use the calculation method defined by the Muslim Pro app."
