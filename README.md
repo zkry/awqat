@@ -174,32 +174,27 @@ Here is another example that makes use of the Muslim World League preset:
 ```
 
 Here is another example that play athan sound on the scheduled time and stop with keyboard shortcut
+```lisp
+(use-package awqat
+  :quelpa (awqat :fetcher github :repo "zkey/awqat")
+  :bind (("C-c r p" . awqat-times-for-day)
+         ("C-c r s" . awqat-stop-adhan))
+  :init
+  (awqat-display-prayer-time-mode 1)
+  (awqat-adhan-mode 1)
+  :config
+  (setq calendar-latitude 40.9
+        calendar-longitude -74.3
+        ;; Executable ffplay required to play mp3 file
+        awqat-adhan-file (expand-file-name "~/Drive/adhan.mp3")
+        awqat-mode-line-format " 🕌 ${prayer} (${hours}h${minutes}m) "
+        awqat-prayer-safety-offsets '(-6.0 -9.0 5.0 4.0 5.0 -1.0)
+        org-agenda-include-diary t)
+  (awqat-set-preset-muslim-world-league)
+  (awqat-set-todays-prayer-times))
 ```
-  (use-package awqat
-    :quelpa ((awqat :fetcher github :repo "erolxx/awqat"))
-    :bind
-    (("C-c r p" . awqat-times-for-day)
-     ("C-c r s" . awqat--stop-adhan))
-
-    :init
-    ()
-    :config
-    (setq calendar-latitude 40.9
-          calendar-longitude -74.3
-          ;; executable ffplay required to play mp3 file
-          awqat-adhan-file (expand-file-name "~/Drive/adhan.mp3")
-          awqat-mode-line-format " 🕌 ${prayer} (${hours}h${minutes}m) "
-          awqat-prayer-safety-offsets '(-6.0 -9.0 5.0 4.0 5.0 -1.0)
-          org-agenda-include-diary t)
-    (awqat-set-preset-muslim-world-league)
-    (awqat-set-todays-prayer-times))
-  (awqat-display-prayer-time-mode)
-  (awqat-adhan-mode)
-```
-
 
 Enable desktop notifications: 
-
 
 ```lisp
 (awqat-notification-mode 1)
@@ -245,26 +240,26 @@ Then in an Org file which is part of `org-agenda-files`, add the following:
 
 The above snippets are, of course, examples. Feel free to modify your liking.
 
-## awqat-display-prayer-time-mode
-By running the command `awqat-display-prayer-time-mode` you can view
-the upcoming prayer time in the mode-line which is updated in real-time.
+## `awqat-display-prayer-time-mode`
+By running the command `awqat-display-prayer-time-mode` you can view the
+upcoming prayer time in the mode-line which is updated in real-time.
 
-## awqat-adhan-mode
-By running the command `awqat-adhan-mode`, an adhan audio file will be
-played at each prayer time.  For this to work, you should have
-installed the executable `ffplay` (to play mp3 files) or if your adhan
-sound file is a wav file, you can use `aplay` or `afplay`.  Ensure the
-variable `awqat-audio-player` is set to the correct audio player.
+## `awqat-adhan-mode`
+By running the command `awqat-adhan-mode`, an Adhan audio file will be played at
+each prayer time. For this to work, you should have installed `ffplay` (part of
+[FFMPG](https://ffmpeg.org/), used to play mp3 files) or if your Adhan sound
+file is a wav file, you can use `aplay` or `afplay`. Ensure the variable
+`awqat-audio-player` is set to the correct audio player.
 
-Next ensure that `awqat-adhan-file` is set to be the adhan file to play.
+Next ensure that `awqat-adhan-file` is set to be the Adhan file to play.
 
-Finally, you can configure `awqat-play-adhan-for-times` to be indicate
-the prayer times you would like to hear the adhan for.  An example
-falue is `'("~/Downloads/fajr.mp3" nil t t t t)` to configure a
-special file to be played for fajr, ishaq to be ignored, and the
-default adhan file to be played for the remaining times.
+Finally, you can configure `awqat-play-adhan-for-times` to be indicate the
+prayer times you would like to hear the Adhan for. An example value is
+`'("~/Downloads/fajr.mp3" nil t t t t)` to configure a special file to be played
+for Fajr, ignore sunrise, and use the default Adhan file to be played for the
+remaining times.
 
-To stop a playing adhan, you can run the command `awqat--stop-adhan`.
+To stop a playing Adhan, you can run the command `awqat-stop-adhan`.
 
 ## Notes on the calculation methods
 Please be warned that this package may contain bugs, the times calculated by
@@ -310,5 +305,5 @@ the earlier of the two).
 
 For places between 55° and 60°, the MCW uses the *one-seventh of night* method.
 
-[^prayertimes]: [Prayertimes.org](http://prayertimes.org/calculation)
-[^moonsighting]: [Syed Khalid Shaukat, _Fajr and Isha_, September 2015](https://raw.githubusercontent.com/islamic-network/prayer-times-moonsighting/master/booklet-fajr-isha.pdf)
+[^prayertimes]: [PrayTimes.org](https://praytimes.org/docs/calculation)
+[^moonsighting]: [Syed Khalid Shaukat, _Fajr and Isha_, September 2015](https://1x.ax/islamic-network/libraries/prayer-times-moonsighting/~raw/master/booklet-fajr-isha.pdf?disposition=ATTACHMENT)
