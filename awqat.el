@@ -1,8 +1,8 @@
 ;;; awqat.el --- Islamic prayer times -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2019-2022 Zachary Romero
+;; Copyright (C) 2019-2026 Zachary Romero
 
-;; Package-Requires: ((emacs "27.1") (s "1.13.0") (alert "1.2"))
+;; Package-Requires: ((emacs "28.1") (alert "1.2"))
 ;; Package-Version: 20250131.162501
 ;; Author: Zachary Romero <zacromero@posteo.net>
 ;; Contributor: Abdelhak Bougouffa <abdelhak.bougouffa@universite-paris-saclay.fr>
@@ -39,7 +39,6 @@
 (require 'solar)
 (require 'calendar)
 (require 'cal-islam)
-(require 's)
 (require 'alert)
 
 
@@ -1025,6 +1024,16 @@ and ${hours} and ${minutes} to refer to the remaining time."
   "Face used to show a very short duration of time."
   :group 'awqat)
 
+(defun awqat--format (fmt &rest label-val-cons)
+  "Use format FMT to format the LABEL-VAL-CONS.
+Calling:
+  \\=(awqat--format \"${one}, ${two}, ${one}\" \\='(\"one\" . 1) \\='(\"two\" . 2))
+Produces: \"1, 2, 1\"."
+  (let ((out fmt))
+    (dolist (label-var label-val-cons)
+      (setq out (string-replace (format "${%s}" (car label-var)) (format "%s" (cdr label-var)) out)))
+    out))
+
 (defun awqat--get-face-from-duration (duration)
   "Return face to use for display based on remaining DURATION.
 DURATION should be a floating-point number representing number of hours."
@@ -1042,7 +1051,7 @@ DURATION should be a floating-point number representing number of hours."
              (h (floor time-remaining))
              (m (floor (* (mod time-remaining 1) 60)))
              (face (awqat--get-face-from-duration time-remaining))
-             (message (s-format awqat-mode-line-format 'aget (list (cons "prayer" name) (cons "hours" h) (cons "minutes" m))))
+             (message (awqat--format awqat-mode-line-format (cons "prayer" name) (cons "hours" h) (cons "minutes" m)))
              (len (length message)))
         (add-face-text-property 0 len face t message)
         (setq awqat-mode-line-string message)))
