@@ -1155,20 +1155,22 @@ If no SOUND-FILE is provided, use `awqat-adhan-file'."
                                                        (awqat--play-adhan special-sound)))
                 (run-at-time seconds-remaining nil #'awqat--play-adhan)))))))
 
-(defun awqat--stop-adhan ()
+(define-obsolete-function-alias 'awqat--stop-adhan 'awqat-stop-adhan "0.3.0")
+
+(defun awqat-stop-adhan ()
   "Stop the currently playing sound."
   (interactive)
   (when awqat--adhan-process
     (delete-process awqat--adhan-process)
     (setq awqat--adhan-process nil)
-    (message "Sound stopped.")))
+    (message "Adhan stopped.")))
 
 ;;;###autoload
 (define-minor-mode awqat-adhan-mode
   "Toggle the playing of the adhan for each time."
   :global t
   (and awqat--next-adhan-timer (cancel-timer awqat--next-adhan-timer))
-  (awqat--stop-adhan)
+  (awqat-stop-adhan)
   (when awqat-adhan-mode
     (awqat--adhan-update)))
 
