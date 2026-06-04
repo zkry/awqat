@@ -5,7 +5,7 @@
 ;; Package-Requires: ((emacs "28.1") (alert "1.2"))
 ;; Package-Version: 20250131.162501
 ;; Author: Zachary Romero <zacromero@posteo.net>
-;; Contributor: Abdelhak Bougouffa <abdelhak.bougouffa@universite-paris-saclay.fr>
+;; Contributor: Abdelhak Bougouffa <abougouffa@fedoraproject.org>
 ;; Version: 0.2.0
 ;; Homepage: http://github.com/zkry/awqat
 
