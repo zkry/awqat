@@ -1078,25 +1078,24 @@ DURATION should be a floating-point number representing number of hours."
 
 ;;; Adhan Mode
 
-(defcustom awqat-audio-player "ffplay"
+(defcustom awqat-audio-player (seq-find #'executable-find '("ffplay" "paplay" "afplay" "aplay"))
   "Music player used to play sounds.
-Possible values are \"ffplay\", \"aplay\", or \"afplay\"."
+Possible values are \"ffplay\", \"paplay\", \"aplay\", or \"afplay\"."
   :group 'awqat
   :type '(choice (const "ffplay")
+                 (const "paplay")
                  (const "afplay")
                  (const "aplay")))
 
 (defun awqat--play-sound (sound-file)
   "Create and return a process to play SOUND-FILE.
 The program to use is specified in the variable `awqat-audio-player'."
-  (let ((cmd-args
-         (pcase (file-name-base awqat-audio-player)
-           ("ffplay"
-            (list awqat-audio-player "-nodisp" "-autoexit" sound-file))
-           (_ (list awqat-audio-player sound-file)))))
-    (apply #'start-process (append '("Awqat adhan sound"
-                                     "*awqat-sound-process*")
-                                   cmd-args))))
+  (when awqat-audio-player
+    (let ((cmd-args
+           (pcase (if (equal (file-name-base awqat-audio-player) "ffplay"))
+             (list awqat-audio-player "-nodisp" "-autoexit" sound-file)
+             (list awqat-audio-player sound-file))))
+      (apply #'start-process (append '("Awqat adhan sound" "*awqat-sound-process*") cmd-args)))))
 
 (defcustom awqat-play-adhan-for-times '(t nil t t t t)
   "List, corresponding to elements of `awqat-prayer-funs'.
