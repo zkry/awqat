@@ -80,6 +80,16 @@ Prefer using using predefined presets suitable for your geographic area."
   :type 'float
   :group 'awqat)
 
+(defcustom awqat-maghrib-angle nil
+  "The Maghrib zenith angle offset (in degrees) below horizon.
+
+The value of this variable can be used to override
+`awqat-sunrise-sunset-angle'. In most cases, this don't need to be set.
+Only some specific methods, mainly Shia ones, uses different angles for
+Maghrib."
+  :type '(choice float (const nil))
+  :group 'awqat)
+
 (defcustom awqat-fajr-before-sunrise-offset 1.81
   "The Fajr time offset (in hours) before sunrise.
 
@@ -108,18 +118,6 @@ of Shafaq Ahmar and Abyad for high latitudes).
 
 For detailed information, see \"Syed Khalid Shaukat, Fajr and Isha, Sep 2015\"."
   :type '(choice (const shafaq) (const shafaq-abyad) (const shafaq-ahmar))
-  :group 'awqat)
-
-(defcustom awqat-sunrise-sunset-angle -0.833
-  "The sunrise/sunset zenith angle offset below horizon.
-
-Used to determine the sunrise and sunset (Maghrib).
-A zero value corresponds to the sun being at zenith=90°,
-which means that the sun circle is still visible.
-The apparent radius of the sun at the horizon is 16 arcminutes,
-and the average refraction is known to be 34 arcminutes,
-which gives an offset of 50 arcminutes, hence the 0.833° value."
-  :type 'float
   :group 'awqat)
 
 (defcustom awqat-asr-hanafi nil
@@ -209,6 +207,16 @@ Dhuhr Asr Maghrib Isha)."
 
 (defvar awqat--pre-notification-timers nil
   "List of timers for upcoming pre-notifications.")
+
+(defconst awqat-sunrise-sunset-angle -0.833
+  "The sunrise/sunset zenith angle offset below horizon.
+
+Used to determine the sunrise and sunset (Maghrib).
+A zero value corresponds to the sun being at zenith=90°,
+which means that the sun circle is still visible.
+The apparent radius of the sun at the horizon is 16 arcminutes,
+and the average refraction is known to be 34 arcminutes,
+which gives an offset of 50 arcminutes, hence the 0.833° value.")
 
 ;;; Preconfigured presets
 
@@ -451,7 +459,7 @@ This is a latitude and season aware method."
   "Use the standard angle method calculation with FAJR and ISHA angles.
 
 Unless NO-RESET is non-nil, reset the variable
-`awqat-sunrise-sunset-angle' to the default -0.833."
+`awqat-maghrib-angle' to nil."
   (setq awqat-fajr-angle fajr
         awqat-isha-angle isha
         awqat-prayer-funs '(awqat--prayer-fajr
@@ -461,7 +469,8 @@ Unless NO-RESET is non-nil, reset the variable
                             awqat--prayer-maghrib
                             awqat--prayer-isha))
   (unless no-reset
-    (setq awqat-sunrise-sunset-angle -0.833)))
+    (setq awqat-sunrise-sunset-angle -0.833 ; In case the user changed it
+          awqat-maghrib-angle nil)))
 
 ;;; UI/Interactive functions and helpers.
 
@@ -725,7 +734,8 @@ If `awqat-asr-hanafi' is non-nil, use double the length of noon shadow."
 
 (defun awqat--prayer-maghrib (d)
   "Calculate the time of Maghrib on date D."
-  (list (awqat--sunset d) (awqat--timezone d)))
+  (list (caadr (awqat-sunrise-sunset-angle d (or awqat-maghrib-angle awqat-sunrise-sunset-angle)))
+        (awqat--timezone d)))
 
 (defun awqat--prayer-maghrib-offset (d &optional offset)
   "Calculate the time of Maghrib on date D, with optional OFFSET."
