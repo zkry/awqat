@@ -496,37 +496,28 @@ Or for today if no DAY is provided."
   "Get the offset in hours for TYPE.
 TYPE being a valid symbol for the `awqat-isha-moonsighting-method' variable.
 Used by the Moonsighting Committee Worldwide method."
-  (let* ((consts (awqat--moonsighting-constants type))
-         (a (nth 0 consts))
-         (b (nth 1 consts))
-         (c (nth 2 consts))
-         (d (nth 3 consts))
-         (dyy (awqat--days-since-winter-solstice)))
-    (/ (cond ((< dyy 91)
-              (+ a (* (/ (- b a) 91.0) dyy)))
-             ((< dyy 137)
-              (+ b (* (/ (- c b) 46.0) (- dyy 91))))
-             ((< dyy 183)
-              (+ c (* (/ (- d c) 46.0) (- dyy 137))))
-             ((< dyy 229)
-              (+ d (* (/ (- c d) 46.0) (- dyy 183))))
-             ((< dyy 275)
-              (+ c (* (/ (- b c) 46.0) (- dyy 229))))
-             ((>= dyy 275)
-              (+ b (* (/ (- a b) 91.0) (- dyy 275)))))
-       60.0)))
+  (cl-destructuring-bind (a b c d)
+      (awqat--moonsighting-constants type)
+    (let* ((dyy (awqat--days-since-winter-solstice)))
+      (/ (cond ((< dyy 91)   (+ a (* (/ (- b a) 91.0) dyy)))
+               ((< dyy 137)  (+ b (* (/ (- c b) 46.0) (- dyy 91))))
+               ((< dyy 183)  (+ c (* (/ (- d c) 46.0) (- dyy 137))))
+               ((< dyy 229)  (+ d (* (/ (- c d) 46.0) (- dyy 183))))
+               ((< dyy 275)  (+ c (* (/ (- b c) 46.0) (- dyy 229))))
+               ((>= dyy 275) (+ b (* (/ (- a b) 91.0) (- dyy 275)))))
+         60.0))))
 
-(defun awqat--days-since-winter-solstice ()
-  "Return the days count since the last winter solstice from today."
-  (let* ((today (awqat--today))
-         (date-zero-month (if (> (calendar-latitude) 0.0) 12 06))
-         (curr-year (calendar-extract-year today))
-         (prev-year-p (calendar-date-compare
-                       (list today)
-                       (list (list date-zero-month 21 curr-year))))
-         (date-zero (list date-zero-month 21 (if prev-year-p (1- curr-year) curr-year))))
-    (- (calendar-absolute-from-gregorian (awqat--today))
-       (calendar-absolute-from-gregorian date-zero))))
+(defun awqat--days-since-winter-solstice (&optional d)
+  "Return the days count since the last winter solstice from D or today."
+  (let* ((d (or d (awqat--today)))
+         ;; Get the winter solstice (ID=3) for the year of `d'
+         (winter-solstice (solar-equinoxes/solstices 3 (calendar-extract-year d)))
+         ;; If it didn't happen yet for this year, get the previous year's one
+         (winter-solstice (if (calendar-date-compare (list d) (list winter-solstice))
+                              (solar-equinoxes/solstices 3 (1- (calendar-extract-year d)))
+                            winter-solstice)))
+    (- (calendar-absolute-from-gregorian d)
+       (calendar-absolute-from-gregorian winter-solstice))))
 
 (defun awqat--moonsighting-constants (type)
   "Return a list of (a b c d) constants for calculation TYPE, for a given LATITUDE."
@@ -584,7 +575,7 @@ higher latitudes during the abnormal period."
   (when (< -48.5 (calendar-latitude) 48.5)
     (warn "This method should only be used in latitudes beyond 48.5°N and 48.5°S."))
 
-  (let ((offset (/ (awqat-duration-of-night d) 7.0)))
+  (let ((offset (/ (awqat-night-duration d) 7.0)))
     (awqat--prayer-fajr-from-sunrise d offset)))
 
 (defun awqat--prayer-fajr-midnight (d)
@@ -596,7 +587,7 @@ sunrise."
   (when (< -48.5 (calendar-latitude) 48.5)
     (warn "This method should only be used in latitudes beyond 48.5°N and 48.5°S."))
 
-  (let ((offset (/ (awqat-duration-of-night d) 2.0)))
+  (let ((offset (/ (awqat-night-duration d) 2.0)))
     (awqat--prayer-fajr-from-sunrise d offset)))
 
 (defun awqat--prayer-fajr-moonsighting (d)
@@ -698,7 +689,7 @@ higher latitudes during the abnormal period."
   (when (< -48.5 (calendar-latitude) 48.5)
     (warn "This method should only be used in latitudes beyond 48.5°N and 48.5°S."))
 
-  (let ((offset (/ (awqat-duration-of-night d) 7.0)))
+  (let ((offset (/ (awqat-night-duration d) 7.0)))
     (awqat--prayer-isha-from-sunset d offset)))
 
 (defun awqat--prayer-isha-moonsighting (d)
@@ -726,7 +717,7 @@ the sun does not set/rise for a number of days every year."))))
   "Calculate the time of isha for date D at with ANGLE using andle method.
 
 This method calculates the time based on a portion of angle/60 of the night."
-  (let* ((night-duration (awqat-duration-of-night d)))
+  (let* ((night-duration (awqat-night-duration d)))
     (/ (* (abs angle) night-duration) 60)))
 
 (defun awqat--third-portion-calc (d angle)
@@ -827,20 +818,18 @@ Example of date: (7 22 2019)"
       (let ((solar-noon (awqat-solar-noon d)))
         (list solar-noon solar-noon)))))
 
-(defun awqat-duration-of-night (d)
-  "Return the duration from sunset to sunset for a given date D.
-Adapted from `solar-sunrise-and-sunset'."
-  (let* ((rise-set (awqat-sunrise-sunset d))
-         (rise-time (caar rise-set))
-         (set-time (caadr rise-set)))
-    (if (not (and rise-time set-time))
-        (if (or (and (> (calendar-latitude) 0)
-                     solar-northern-spring-or-summer-season)
-                (and (< (calendar-latitude) 0)
-                     (not solar-northern-spring-or-summer-season)))
-            0 ; no night
-          24) ; no day
-      (- (+ rise-time 24.0) set-time))))
+(defun awqat-daylight-duration (d)
+  "Return the duration in hours from sunrise to sunset for a given date D."
+  (if-let* ((daylight (caddr (awqat-sunrise-sunset d)))
+            (daylight (mapcar #'string-to-number (split-string daylight ":"))))
+      (+ (car daylight) (/ (cadr daylight) 60.0))
+    0.0))
+
+(define-obsolete-function-alias 'awqat-duration-of-night 'awqat-night-duration "1.0.0")
+
+(defun awqat-night-duration (d)
+  "Return the duration in hours from sunset to sunrise for a given date D."
+  (- 24.0 (awqat-daylight-duration d)))
 
 (defun awqat-solar-noon (d)
   "Calculate the time of Zuhr on date D."
