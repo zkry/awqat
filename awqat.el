@@ -519,7 +519,7 @@ Used by the Moonsighting Committee Worldwide method."
 (defun awqat--days-since-winter-solstice ()
   "Return the days count since the last winter solstice from today."
   (let* ((today (awqat--today))
-         (date-zero-month (if (> calendar-latitude 0.0) 12 06))
+         (date-zero-month (if (> (calendar-latitude) 0.0) 12 06))
          (curr-year (calendar-extract-year today))
          (prev-year-p (calendar-date-compare
                        (list today)
@@ -531,7 +531,7 @@ Used by the Moonsighting Committee Worldwide method."
 (defun awqat--moonsighting-constants (type)
   "Return a list of (a b c d) constants for calculation TYPE, for a given LATITUDE."
   ;; CTE = alpha + beta / 55.0 * abs(latitude)
-  (mapcar (lambda (ab) (+ (car ab) (* (/ (cadr ab) 55.0) (abs calendar-latitude))))
+  (mapcar (lambda (ab) (+ (car ab) (* (/ (cadr ab) 55.0) (abs (calendar-latitude)))))
           (pcase type
             ('subh-sadiq
              '((75.0 28.65) (75.0 19.44) (75.0 32.74) (75.0 48.10)))
@@ -551,7 +551,7 @@ Used by the Moonsighting Committee Worldwide method."
 
 (defun awqat--prayer-fajr-diyanet (d)
   "Calculate the time of fajr for date D using third-portion if lat > 45."
-  (if (< calendar-latitude 45.0)
+  (if (< (calendar-latitude) 45.0)
       (awqat--prayer-fajr d)
     (let ((third-portion (awqat--third-portion-calc d awqat-fajr-angle))
           (sunrise (awqat--sunrise d))
@@ -581,7 +581,7 @@ Used by the Moonsighting Committee Worldwide method."
   "Calculate the time of fajr for a given date D.
 The one-seventh of night method is an approximation used in
 higher latitudes during the abnormal period."
-  (when (< -48.5 calendar-latitude 48.5)
+  (when (< -48.5 (calendar-latitude) 48.5)
     (warn "This method should only be used in latitudes beyond 48.5°N and 48.5°S."))
 
   (let ((offset (/ (awqat-duration-of-night d) 7.0)))
@@ -593,7 +593,7 @@ The midnight method is an approximation used in higher latitudes
 during the abnormal period.  It defines the Isha and Fajr times
 to be the same, starting at the midnight between sunset and
 sunrise."
-  (when (< -48.5 calendar-latitude 48.5)
+  (when (< -48.5 (calendar-latitude) 48.5)
     (warn "This method should only be used in latitudes beyond 48.5°N and 48.5°S."))
 
   (let ((offset (/ (awqat-duration-of-night d) 2.0)))
@@ -604,7 +604,7 @@ sunrise."
 The Moonsighting Committee Worldwide (MCW) method is a latitude
 and season aware method.  It takes into account placed in higher
 latitudes, up to 60°N/S."
-  (cond ((< (abs calendar-latitude) 55.0)
+  (cond ((< (abs (calendar-latitude)) 55.0)
          ;; From equator to 55°, the 18° depression angle calculations are compared with the values
          ;; given by the functions of latitude and seasons and most favorable values are used, which
          ;; means; for Fajr, the later of the two and for Isha the earlier of the two.
@@ -613,8 +613,7 @@ latitudes, up to 60°N/S."
            (list (max (car fajr-18)
                       (- (car (awqat--prayer-sunrise d)) offset))
                  (awqat--timezone d))))
-
-        ((and (<= 55.0 (abs calendar-latitude)) (< (abs calendar-latitude) 60.0))
+        ((and (<= 55.0 (abs (calendar-latitude))) (< (abs (calendar-latitude)) 60.0))
          (awqat--prayer-fajr-one-seventh-of-night d))
         (t (warn "Latitudes beyond 60°N/S, hardship prevails and beyond 65°,
 the sun does not set/rise for a number of days every year."))))
@@ -658,7 +657,7 @@ If `awqat-asr-hanafi' is non-nil, use double the length of noon shadow."
 
 (defun awqat--prayer-isha-diyanet (d)
   "Calculate the time of fajr for date D using third-portion if lat > 45."
-  (if (< calendar-latitude 45.0)
+  (if (< (calendar-latitude) 45.0)
       (awqat--prayer-isha d)
     (let ((third-portion (awqat--third-portion-calc d awqat-isha-angle))
           (sunset (awqat--sunset d))
@@ -696,7 +695,7 @@ sunrise."
   "Return the Isha time for a given date D.
 The one-seventh of night method is an approximation used in
 higher latitudes during the abnormal period."
-  (when (< -48.5 calendar-latitude 48.5)
+  (when (< -48.5 (calendar-latitude) 48.5)
     (warn "This method should only be used in latitudes beyond 48.5°N and 48.5°S."))
 
   (let ((offset (/ (awqat-duration-of-night d) 7.0)))
@@ -707,7 +706,7 @@ higher latitudes during the abnormal period."
 The Moonsighting Committee Worldwide (MCW) method is a latitude
 and season aware method.  It takes into account placed in higher
 latitudes, up to 60°N/S."
-  (cond ((< (abs calendar-latitude) 55.0)
+  (cond ((< (abs (calendar-latitude)) 55.0)
          ;; From equator to 55°, the 18° depression angle calculations are compared with the values
          ;; given by the functions of latitude and seasons and most favorable values are used, which
          ;; means; for Fajr, the later of the two and for Isha the earlier of the two.
@@ -716,7 +715,7 @@ latitudes, up to 60°N/S."
            (list (awqat--isha-time-min
                   d (car isha-18) (+ (car (awqat--prayer-maghrib d)) offset))
                  (awqat--timezone d))))
-        ((and (<= 55.0 (abs calendar-latitude)) (< (abs calendar-latitude) 60.0))
+        ((and (<= 55.0 (abs (calendar-latitude))) (< (abs (calendar-latitude)) 60.0))
          (awqat--prayer-isha-one-seventh-of-night d))
         (t (warn "Latitudes beyond 60°N/S, hardship prevails and beyond 65°,
 the sun does not set/rise for a number of days every year."))))
