@@ -130,26 +130,19 @@ List ordered as: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
   :type '(list float)
   :group 'awqat)
 
-(defcustom awqat-prayer-funs
-  (list #'awqat--prayer-fajr
-        #'awqat--prayer-sunrise
-        #'awqat--prayer-dhuhr
-        #'awqat--prayer-asr
-        #'awqat--prayer-maghrib
-        #'awqat--prayer-isha)
+(defcustom awqat-prayer-funs '(awqat--prayer-fajr
+                               awqat--prayer-sunrise
+                               awqat--prayer-dhuhr
+                               awqat--prayer-asr
+                               awqat--prayer-maghrib
+                               awqat--prayer-isha)
   "The functions used to calculate each time, a list of six elements."
   :type '(list function)
   :group 'awqat)
 
 (make-obsolete-variable 'awqat--prayer-funs 'awqat-prayer-funs "1.0.0")
 
-(defvar awqat--prayer-names
-  (list "Fajr"
-        "Sunrise"
-        "Dhuhr"
-        "Asr"
-        "Maghrib"
-        "Isha")
+(defvar awqat--prayer-names '("Fajr" "Sunrise" "Dhuhr" "Asr" "Maghrib" "Isha")
   "Names of the six times.")
 
 ;;; Notification settings
@@ -214,36 +207,30 @@ Dhuhr Asr Maghrib Isha)."
 
 (defun awqat-use-angle-based-method ()
   "Set the calculation for Isha and Fajr to be angle based."
-  (setq awqat-prayer-funs (list #'awqat--prayer-fajr
-                                 #'awqat--prayer-sunrise
-                                 #'awqat--prayer-dhuhr
-                                 #'awqat--prayer-asr
-                                 #'awqat--prayer-maghrib
-                                 #'awqat--prayer-isha)))
+  (setq awqat-prayer-funs '(awqat--prayer-fajr
+                            awqat--prayer-sunrise
+                            awqat--prayer-dhuhr
+                            awqat--prayer-asr
+                            awqat--prayer-maghrib
+                            awqat--prayer-isha)))
 
 (defun awqat-use-time-offset-method ()
   "Set the calculation for Isha and Fajr to be hours before/after based."
-  (setq awqat-prayer-funs (list #'awqat--prayer-fajr-offset
-                                 #'awqat--prayer-sunrise
-                                 #'awqat--prayer-dhuhr
-                                 #'awqat--prayer-asr
-                                 #'awqat--prayer-maghrib
-                                 #'awqat--prayer-isha-offset)))
+  (setq awqat-prayer-funs '(awqat--prayer-fajr-offset
+                            awqat--prayer-sunrise
+                            awqat--prayer-dhuhr
+                            awqat--prayer-asr
+                            awqat--prayer-maghrib
+                            awqat--prayer-isha-offset)))
 
 (defun awqat-set-preset-diyanet ()
   "Set the calculation method to be similar to the Muslim Pro app."
-  (setq awqat-prayer-funs (list #'awqat--prayer-fajr
-                                 #'awqat--prayer-sunrise
-                                 #'awqat--prayer-dhuhr
-                                 #'awqat--prayer-asr
-                                 #'awqat--prayer-maghrib
-                                 #'awqat--prayer-isha))
-  (setq awqat-asr-hanafi nil)
-  (setq awqat-fajr-angle -18.00)
-  (setq awqat-isha-angle -17.00)
-  (setq awqat-sunrise-sunset-angle -2.0)
-  (setq awqat-prayer-safety-offsets
-        '(0.0 0.0 5.0 6.0 0.0 0.0)))
+  (setq awqat-asr-hanafi nil
+        awqat-fajr-angle -18.00
+        awqat-isha-angle -17.00
+        awqat-sunrise-sunset-angle -2.0
+        awqat-prayer-safety-offsets '(0.0 0.0 5.0 6.0 0.0 0.0)))
+
 
 (defun awqat-set-preset-muslim-pro ()
   "Use the calculation method defined by the Muslim Pro app."
@@ -259,18 +246,18 @@ Dhuhr Asr Maghrib Isha)."
 
 (defun awqat-set-preset-umm-al-qura ()
   "Use the calculation method defined by Umm al-Qura University, Makkah."
-  (setq awqat-prayer-funs (list #'awqat--prayer-fajr
-                                 #'awqat--prayer-sunrise
-                                 #'awqat--prayer-dhuhr
-                                 #'awqat--prayer-asr
-                                 #'awqat--prayer-maghrib
-                                 (lambda (d)
-                                   (let ((maghrib-time (awqat--prayer-maghrib d))
-                                         (ramadan-p (eq 9 (car (awqat--islamic-from-gregorian)))))
-                                     (list (+ (car maghrib-time) (if ramadan-p 2.0 1.5))
-                                           (cadr maghrib-time))))))
-  (setq awqat-fajr-angle -18.5)
-  (setq awqat-isha-angle nil))
+  (setq awqat-fajr-angle -18.5
+        awqat-isha-angle nil
+        awqat-prayer-funs `(awqat--prayer-fajr
+                            awqat--prayer-sunrise
+                            awqat--prayer-dhuhr
+                            awqat--prayer-asr
+                            awqat--prayer-maghrib
+                            ,(lambda (d)
+                               (let ((maghrib-time (awqat--prayer-maghrib d))
+                                     (ramadan-p (eq 9 (car (awqat--islamic-from-gregorian)))))
+                                 (list (+ (car maghrib-time) (if ramadan-p 2.0 1.5))
+                                       (cadr maghrib-time)))))))
 
 (defun awqat-set-preset-egyptian-general-authority-of-survey ()
   "Use the calculation method defined by the Egyptian General Authority of Survey."
@@ -282,16 +269,16 @@ Dhuhr Asr Maghrib Isha)."
 
 (defun awqat-set-preset-institute-of-geophysics-university-of-tehran ()
   "Use calculation method by the Institute of Geophysics, University of Tehran."
-  (setq awqat-prayer-funs (list #'awqat--prayer-fajr
-                                 #'awqat--prayer-sunrise
-                                 #'awqat--prayer-dhuhr
-                                 #'awqat--prayer-asr
-                                 (lambda (d)
-                                   (list (caadr (awqat-sunrise-sunset-angle d -4.0))
-                                         (awqat--timezone d)))
-                                 #'awqat--prayer-isha))
-  (setq awqat-fajr-angle -17.7)
-  (setq awqat-isha-angle -14.0))
+  (setq awqat-fajr-angle -17.7
+        awqat-isha-angle -14.0
+        awqat-prayer-funs `(awqat--prayer-fajr
+                            awqat--prayer-sunrise
+                            awqat--prayer-dhuhr
+                            awqat--prayer-asr
+                            ,(lambda (d)
+                               (list (caadr (awqat-sunrise-sunset-angle d -4.0))
+                                     (awqat--timezone d)))
+                            awqat--prayer-isha)))
 
 (defun awqat-set-preset-singapore ()
   "Use the calculation method defined by the Majlis Ugama Islam Singapura."
@@ -336,46 +323,46 @@ Former: Union des Organisations Islamiques de France."
 
 (defun awqat-set-preset-midnight ()
   "Use the calculation method used in higher latitudes (Midnight method)."
-  (setq awqat-prayer-funs (list #'awqat--prayer-fajr-midnight
-                                 #'awqat--prayer-sunrise
-                                 #'awqat--prayer-dhuhr
-                                 #'awqat--prayer-asr
-                                 #'awqat--prayer-maghrib
-                                 #'awqat--prayer-isha-midnight)))
+  (setq awqat-prayer-funs '(awqat--prayer-fajr-midnight
+                            awqat--prayer-sunrise
+                            awqat--prayer-dhuhr
+                            awqat--prayer-asr
+                            awqat--prayer-maghrib
+                            awqat--prayer-isha-midnight)))
 
 (defun awqat-set-preset-one-seventh-of-night ()
   "Use calculation method for higher latitudes (One-seventh of night method)."
-  (setq awqat-prayer-funs (list #'awqat--prayer-fajr-one-seventh-of-night
-                                 #'awqat--prayer-sunrise
-                                 #'awqat--prayer-dhuhr
-                                 #'awqat--prayer-asr
-                                 #'awqat--prayer-maghrib
-                                 #'awqat--prayer-isha-one-seventh-of-night)))
+  (setq awqat-prayer-funs '(awqat--prayer-fajr-one-seventh-of-night
+                            awqat--prayer-sunrise
+                            awqat--prayer-dhuhr
+                            awqat--prayer-asr
+                            awqat--prayer-maghrib
+                            awqat--prayer-isha-one-seventh-of-night)))
 
 (defun awqat-set-preset-moonsighting-committee-worldwide  ()
   "Use calculation method defined by the Moonsighting Committee Worldwide (MCW).
 This is a latitude and season aware method."
-  (setq awqat-prayer-funs (list #'awqat--prayer-fajr-moonsighting
-                                 #'awqat--prayer-sunrise
-                                 #'awqat--prayer-dhuhr
-                                 #'awqat--prayer-asr
-                                 #'awqat--prayer-maghrib
-                                 #'awqat--prayer-isha-moonsighting))
-  (setq awqat-fajr-angle -18.0)
-  (setq awqat-isha-angle -18.0))
+  (setq awqat-fajr-angle -18.0
+        awqat-isha-angle -18.0
+        awqat-prayer-funs '(awqat--prayer-fajr-moonsighting
+                            awqat--prayer-sunrise
+                            awqat--prayer-dhuhr
+                            awqat--prayer-asr
+                            awqat--prayer-maghrib
+                            awqat--prayer-isha-moonsighting)))
 
 ;;; Presets helper functions
 
 (defun awqat--preset-with-angles (fajr isha)
   "Use the standard angle method calculation with FAJR and ISHA angles."
-  (setq awqat-prayer-funs (list #'awqat--prayer-fajr
-                                 #'awqat--prayer-sunrise
-                                 #'awqat--prayer-dhuhr
-                                 #'awqat--prayer-asr
-                                 #'awqat--prayer-maghrib
-                                 #'awqat--prayer-isha))
-  (setq awqat-fajr-angle fajr)
-  (setq awqat-isha-angle isha))
+  (setq awqat-fajr-angle fajr
+        awqat-isha-angle isha
+        awqat-prayer-funs '(awqat--prayer-fajr
+                            awqat--prayer-sunrise
+                            awqat--prayer-dhuhr
+                            awqat--prayer-asr
+                            awqat--prayer-maghrib
+                            awqat--prayer-isha)))
 
 ;;; UI/Interactive functions and helpers.
 
@@ -927,9 +914,9 @@ If nil, use the default alert style.  See `alert-styles' for options."
                  (current-time (decode-time))
                  (notification-time
                   (encode-time 0 minute hour
-                              (decoded-time-day current-time)
-                              (decoded-time-month current-time)
-                              (decoded-time-year current-time))))
+                               (decoded-time-day current-time)
+                               (decoded-time-month current-time)
+                               (decoded-time-year current-time))))
             (when (> (float-time notification-time) now)
               (let ((timer (run-at-time notification-time nil
                                         #'awqat--send-notification
@@ -958,18 +945,18 @@ If nil, use the default alert style.  See `alert-styles' for options."
                  (minute (floor (* 60 (- (car time) hour))))
                  (pre-minute (- minute awqat-pre-notification-minutes))
                  (pre-hour (if (< pre-minute 0)
-                              (1- hour)
-                            hour))
+                               (1- hour)
+                             hour))
                  (pre-minute (if (< pre-minute 0)
-                                (+ 60 pre-minute)
-                              pre-minute))
+                                 (+ 60 pre-minute)
+                               pre-minute))
                  (prayer-name (nth idx awqat--prayer-names))
                  (current-time (decode-time))
                  (notification-time
                   (encode-time 0 pre-minute pre-hour
-                              (decoded-time-day current-time)
-                              (decoded-time-month current-time)
-                              (decoded-time-year current-time))))
+                               (decoded-time-day current-time)
+                               (decoded-time-month current-time)
+                               (decoded-time-year current-time))))
             (when (> (float-time notification-time) now)
               (let ((timer (run-at-time notification-time nil
                                         #'awqat--send-notification
@@ -1095,7 +1082,7 @@ The program to use is specified in the variable `awqat-audio-player'."
            (if (equal "ffplay" (file-name-base awqat-audio-player))
                (list awqat-audio-player "-nodisp" "-autoexit" sound-file)
              (list awqat-audio-player sound-file))))
-      (apply #'start-process (append '("Awqat adhan sound" "*awqat-sound-process*") cmd-args)))))
+      (apply #'start-process (append '("awqat-sound-process" "*awqat-sound-process*") cmd-args)))))
 
 (defcustom awqat-play-adhan-for-times '(t nil t t t t)
   "List, corresponding to elements of `awqat-prayer-funs'.
