@@ -1092,8 +1092,8 @@ Possible values are \"ffplay\", \"paplay\", \"aplay\", or \"afplay\"."
 The program to use is specified in the variable `awqat-audio-player'."
   (when awqat-audio-player
     (let ((cmd-args
-           (pcase (if (equal (file-name-base awqat-audio-player) "ffplay"))
-             (list awqat-audio-player "-nodisp" "-autoexit" sound-file)
+           (if (equal "ffplay" (file-name-base awqat-audio-player))
+               (list awqat-audio-player "-nodisp" "-autoexit" sound-file)
              (list awqat-audio-player sound-file))))
       (apply #'start-process (append '("Awqat adhan sound" "*awqat-sound-process*") cmd-args)))))
 
