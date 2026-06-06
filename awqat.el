@@ -359,8 +359,11 @@ This is a latitude and season aware method."
 
 ;;; Presets helper functions
 
-(defun awqat--preset-with-angles (fajr isha)
-  "Use the standard angle method calculation with FAJR and ISHA angles."
+(defun awqat--preset-with-angles (fajr isha &optional no-reset)
+  "Use the standard angle method calculation with FAJR and ISHA angles.
+
+Unless NO-RESET is non-nil, reset the variable
+`awqat-sunrise-sunset-angle' to the default -0.833."
   (setq awqat-fajr-angle fajr
         awqat-isha-angle isha
         awqat-prayer-funs '(awqat--prayer-fajr
@@ -368,7 +371,9 @@ This is a latitude and season aware method."
                             awqat--prayer-dhuhr
                             awqat--prayer-asr
                             awqat--prayer-maghrib
-                            awqat--prayer-isha)))
+                            awqat--prayer-isha))
+  (unless no-reset
+    (setq awqat-sunrise-sunset-angle -0.833)))
 
 ;;; UI/Interactive functions and helpers.
 
