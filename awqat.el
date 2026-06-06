@@ -87,8 +87,15 @@ This is applicable only when calculating Fajr offset-based approaches."
   :type 'float
   :group 'awqat)
 
+(defcustom awqat-maghrib-after-sunset-offset (/ 0.5 60.0) ; 30s
+  "The Maghrib time offset (in hours) after sunset.
+
+This is applicable only when calculating Isha offset-based approaches."
+  :type 'float
+  :group 'awqat)
+
 (defcustom awqat-isha-after-sunset-offset 1.333
-  "The Fajr time offset (in hours) after sunset.
+  "The Isha time offset (in hours) after sunset.
 
 This is applicable only when calculating Isha offset-based approaches."
   :type 'float
@@ -106,7 +113,7 @@ For detailed information, see \"Syed Khalid Shaukat, Fajr and Isha, Sep 2015\"."
 (defcustom awqat-sunrise-sunset-angle -0.833
   "The sunrise/sunset zenith angle offset below horizon.
 
-Used to determine the sunrise and sunset (Maghreb).
+Used to determine the sunrise and sunset (Maghrib).
 A zero value corresponds to the sun being at zenith=90°,
 which means that the sun circle is still visible.
 The apparent radius of the sun at the horizon is 16 arcminutes,
@@ -231,12 +238,15 @@ sunrise/sunset and safety offsets for Dhuhr and Asr."
   (setq awqat-asr-hanafi nil
         awqat-fajr-angle -18.00
         awqat-isha-angle -17.00
-        awqat-sunrise-sunset-angle -2.0
+        awqat-prayer-funs `(awqat--prayer-fajr
+                            awqat--prayer-sunrise
+                            awqat--prayer-dhuhr
+                            awqat--prayer-asr
+                            ,(lambda (d)
+                               (list (caadr (awqat-sunrise-sunset-angle d -2.0))
+                                     (awqat--timezone d)))
+                            awqat--prayer-isha)
         awqat-prayer-safety-offsets '(0.0 0.0 5.0 6.0 0.0 0.0)))
-
-(defun awqat-set-preset-diyanet-standard ()
-  "Set the calculation method to the standard Diyanet İşleri Başkanlığı, Turkey."
-  (awqat--preset-with-angles -18.0 -17.0))
 
 (defun awqat-set-preset-muslim-pro ()
   "Use the calculation method defined by the Muslim Pro app, non official."
@@ -282,33 +292,62 @@ sunrise/sunset and safety offsets for Dhuhr and Asr."
                             awqat--prayer-dhuhr
                             awqat--prayer-asr
                             ,(lambda (d)
+                               (list (caadr (awqat-sunrise-sunset-angle d -4.5))
+                                     (awqat--timezone d)))
+                            awqat--prayer-isha)))
+
+(defun awqat-set-preset-jafari ()
+  "Use calculation method used by Shia Ithna-Ashari, Leva Institute, Qum."
+  (setq awqat-fajr-angle -16.0
+        awqat-isha-angle -14.0
+        awqat-prayer-funs `(awqat--prayer-fajr
+                            awqat--prayer-sunrise
+                            awqat--prayer-dhuhr
+                            awqat--prayer-asr
+                            ,(lambda (d)
                                (list (caadr (awqat-sunrise-sunset-angle d -4.0))
                                      (awqat--timezone d)))
                             awqat--prayer-isha)))
 
-(defun awqat-set-preset-singapore ()
-  "Use the calculation method defined by the Majlis Ugama Islam Singapura."
+(defun awqat-set-preset-jakim ()
+  "Use calc method by Department of Islamic Development Malaysia (JAKIM)."
   (awqat--preset-with-angles -20.0 -18.0))
-
-(defun awqat-set-preset-algeria ()
-  "Use calculation method by Ministry of Religious Affairs and Wakfs, Algeria."
-  (awqat--preset-with-angles -18.0 -17.0))
 
 (defun awqat-set-preset-morocco ()
   "Use the calculation method used in Morocco."
-  (awqat--preset-with-angles -18.0 -18.0))
+  (awqat--preset-with-angles -19.0 -17.0))
 
 (defun awqat-set-preset-taiwan ()
   "Use the calculation method used in Taiwan."
   (awqat--preset-with-angles -16.0 -19.0))
 
-(defun awqat-set-preset-uae ()
-  "Use the calculation method used in UAE."
+(defun awqat-set-preset-dubai ()
+  "Use the calculation method used in Dubai, UAE."
   (awqat--preset-with-angles -18.2 -18.2))
 
-(defun awqat-set-preset-jakim ()
-  "Use calc method by Department of Islamic Development Malaysia (JAKIM)."
-  (awqat--preset-with-angles -20.0 -18.0))
+(defun awqat-set-preset-gulf-region ()
+  "Use the calculation method used in some countries in the Gulf region."
+  (setq awqat-fajr-angle -19.5
+        awqat-isha-angle nil
+        awqat-isha-after-sunset-offset 1.5 ; 90min
+        awqat-prayer-funs `(awqat--prayer-fajr
+                            awqat--prayer-sunrise
+                            awqat--prayer-dhuhr
+                            awqat--prayer-asr
+                            awqat--prayer-maghrib
+                            awqat--prayer-isha-offset)))
+
+(defun awqat-set-preset-qatar ()
+  "Use the calculation method use in Qatar."
+  (setq awqat-fajr-angle -18.0
+        awqat-isha-angle nil
+        awqat-isha-after-sunset-offset 1.5 ; 90min
+        awqat-prayer-funs `(awqat--prayer-fajr
+                            awqat--prayer-sunrise
+                            awqat--prayer-dhuhr
+                            awqat--prayer-asr
+                            awqat--prayer-maghrib
+                            awqat--prayer-isha-offset)))
 
 (defun awqat-set-preset-spiritual-administration-of-muslims-russia ()
   "Use calculation method by Spiritual Administration of Muslims, Russia (SAMR)."
@@ -326,6 +365,31 @@ Former: Union des Organisations Islamiques de France."
 (defun awqat-set-preset-isna ()
   "Use calculation method by Islamic Society of North America (ISNA)."
   (awqat--preset-with-angles -15.0 -15.0))
+
+(defun awqat-set-preset-portugal ()
+  "Use calculation method defined by Comunidade Islamica de Lisboa."
+  (setq awqat-fajr-angle -18.0
+        awqat-isha-angle nil
+        awqat-isha-after-sunset-offset (/ 77.0 60.0) ; 77min
+        awqat-maghrib-after-sunset-offset (/ 3.0 60.0) ; 3min
+        awqat-prayer-funs `(awqat--prayer-fajr
+                            awqat--prayer-sunrise
+                            awqat--prayer-dhuhr
+                            awqat--prayer-asr
+                            awqat--prayer-maghrib-offset
+                            awqat--prayer-isha-offset)))
+
+(defun awqat-set-preset-jordan ()
+  "Use calculation method defined by the Ministry of Awqaf, Islamic Affairs and Holy Places, Jordan."
+  (setq awqat-fajr-angle -18.0
+        awqat-isha-angle -18.0
+        awqat-maghrib-after-sunset-offset (/ 5.0 60.0) ; 5min
+        awqat-prayer-funs `(awqat--prayer-fajr
+                            awqat--prayer-sunrise
+                            awqat--prayer-dhuhr
+                            awqat--prayer-asr
+                            awqat--prayer-maghrib-offset
+                            awqat--prayer-isha)))
 
 (defun awqat-set-preset-midnight ()
   "Use the calculation method used in higher latitudes (Midnight method)."
@@ -356,6 +420,30 @@ This is a latitude and season aware method."
                             awqat--prayer-asr
                             awqat--prayer-maghrib
                             awqat--prayer-isha-moonsighting)))
+
+(defalias 'awqat-set-preset-algeria 'awqat-set-preset-muslim-world-league
+  "Use calculation method by Ministry of Religious Affairs and Wakfs, Algeria.")
+
+(defalias 'awqat-set-preset-diyanet-standard 'awqat-set-preset-muslim-world-league
+  "Set the calculation method to the standard Diyanet İşleri Başkanlığı, Turkey.")
+
+(defalias 'awqat-set-preset-france-15 'awqat-set-preset-isna
+  "Use calculation 15° method used in some mosques in France.")
+
+(defalias 'awqat-set-preset-france-18 'awqat-set-preset-karachi-university-of-islamic-sciences
+  "Use calculation 18° method used in some mosques in France.")
+
+(defalias 'awqat-set-preset-indonesia 'awqat-set-preset-jakim
+  "Use the calculation method defined by the Kementerian Agama Republik Indonesia.")
+
+(defalias 'awqat-set-preset-singapore 'awqat-set-preset-jakim
+  "Use the calculation method defined by the Majlis Ugama Islam Singapura.")
+
+(defalias 'awqat-set-preset-tunisia 'awqat-set-preset-karachi-university-of-islamic-sciences
+  "Use the calculation method used in Tunisia.")
+
+(defalias 'awqat-set-preset-uae 'awqat-set-preset-gulf-region
+  "Use the calculation method of UAE General Authority of Islamic Affairs And Endowments.")
 
 ;;; Presets helper functions
 
@@ -568,10 +656,8 @@ Used by the Moonsighting Committee Worldwide method."
 
 (defun awqat--prayer-fajr-offset (d)
   "Calculate the time of fajr based on fixed time for given date D."
-  (let ((sunrise (awqat--sunset d))
-        (timezone (awqat--sunset d)))
-    (list (- sunrise awqat-fajr-before-sunrise-offset)
-          timezone)))
+  (when-let* ((sunrise (awqat--sunrise d)))
+    (list (- sunrise awqat-fajr-before-sunrise-offset) (awqat--timezone d))))
 
 (defun awqat--prayer-fajr-one-seventh-of-night (d)
   "Calculate the time of fajr for a given date D.
@@ -616,8 +702,7 @@ the sun does not set/rise for a number of days every year."))))
 
 (defun awqat--prayer-sunrise (d)
   "Calculate the time of the sunrise on a given date D."
-  (list (awqat--sunrise d)
-        (awqat--timezone d)))
+  (list (awqat--sunrise d) (awqat--timezone d)))
 
 ;; Dhuhr
 
@@ -639,8 +724,12 @@ If `awqat-asr-hanafi' is non-nil, use double the length of noon shadow."
 ;; Maghrib
 
 (defun awqat--prayer-maghrib (d)
-  "Calculate the time of maghrib on date D."
-  (list (awqat--sunset d)
+  "Calculate the time of Maghrib on date D."
+  (list (awqat--sunset d) (awqat--timezone d)))
+
+(defun awqat--prayer-maghrib-offset (d &optional offset)
+  "Calculate the time of Maghrib on date D, with optional OFFSET."
+  (list (+ (or offset awqat-maghrib-after-sunset-offset) (awqat--sunset d))
         (awqat--timezone d)))
 
 ;; Isha
@@ -674,7 +763,7 @@ If `awqat-asr-hanafi' is non-nil, use double the length of noon shadow."
   "Calculate the time of fajr based on fixed time for given date D.
 
 When OFFSET is non-nil, use it instead of `awqat-isha-after-sunset-offset'."
-  (let ((sunset (awqat--sunset d)))
+  (when-let* ((sunset (awqat--sunset d)))
     (list (+ sunset (or offset awqat-isha-after-sunset-offset)) (awqat--timezone d))))
 
 (defun awqat--prayer-isha-midnight (d)
