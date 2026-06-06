@@ -100,7 +100,7 @@ This is applicable only when calculating Fajr offset-based approaches."
 (defcustom awqat-maghrib-after-sunset-offset (/ 0.5 60.0) ; 30s
   "The Maghrib time offset (in hours) after sunset.
 
-This is applicable only when calculating Isha offset-based approaches."
+This is applicable only when calculating Maghrib offset-based approaches."
   :type 'float
   :group 'awqat)
 
@@ -243,17 +243,8 @@ which gives an offset of 50 arcminutes, hence the 0.833° value.")
 
 This preset sets some non-standard options, including a -2.0° angle for
 sunrise/sunset and safety offsets for Dhuhr and Asr."
+  (awqat--preset-with-angles -18.0 -17.0 -2.0)
   (setq awqat-asr-hanafi nil
-        awqat-fajr-angle -18.00
-        awqat-isha-angle -17.00
-        awqat-prayer-funs `(awqat--prayer-fajr
-                            awqat--prayer-sunrise
-                            awqat--prayer-dhuhr
-                            awqat--prayer-asr
-                            ,(lambda (d)
-                               (list (caadr (awqat-sunrise-sunset-angle d -2.0))
-                                     (awqat--timezone d)))
-                            awqat--prayer-isha)
         awqat-prayer-safety-offsets '(0.0 0.0 5.0 6.0 0.0 0.0)))
 
 (defun awqat-set-preset-muslim-pro ()
@@ -293,29 +284,11 @@ sunrise/sunset and safety offsets for Dhuhr and Asr."
 
 (defun awqat-set-preset-institute-of-geophysics-university-of-tehran ()
   "Use calculation method by the Institute of Geophysics, University of Tehran."
-  (setq awqat-fajr-angle -17.7
-        awqat-isha-angle -14.0
-        awqat-prayer-funs `(awqat--prayer-fajr
-                            awqat--prayer-sunrise
-                            awqat--prayer-dhuhr
-                            awqat--prayer-asr
-                            ,(lambda (d)
-                               (list (caadr (awqat-sunrise-sunset-angle d -4.5))
-                                     (awqat--timezone d)))
-                            awqat--prayer-isha)))
+  (awqat--preset-with-angles -17.7 -14.0 -4.5))
 
 (defun awqat-set-preset-jafari ()
   "Use calculation method used by Shia Ithna-Ashari, Leva Institute, Qum."
-  (setq awqat-fajr-angle -16.0
-        awqat-isha-angle -14.0
-        awqat-prayer-funs `(awqat--prayer-fajr
-                            awqat--prayer-sunrise
-                            awqat--prayer-dhuhr
-                            awqat--prayer-asr
-                            ,(lambda (d)
-                               (list (caadr (awqat-sunrise-sunset-angle d -4.0))
-                                     (awqat--timezone d)))
-                            awqat--prayer-isha)))
+  (awqat--preset-with-angles -16.0 -14.0 -4.0))
 
 (defun awqat-set-preset-jakim ()
   "Use calc method by Department of Islamic Development Malaysia (JAKIM)."
@@ -455,22 +428,20 @@ This is a latitude and season aware method."
 
 ;;; Presets helper functions
 
-(defun awqat--preset-with-angles (fajr isha &optional no-reset)
+(defun awqat--preset-with-angles (fajr isha &optional maghrib)
   "Use the standard angle method calculation with FAJR and ISHA angles.
 
-Unless NO-RESET is non-nil, reset the variable
-`awqat-maghrib-angle' to nil."
+Optionally, set the MAGHRIB angle."
   (setq awqat-fajr-angle fajr
         awqat-isha-angle isha
+        awqat-maghrib-angle maghrib
+        awqat-sunrise-sunset-angle -0.833 ; In case the user changed it
         awqat-prayer-funs '(awqat--prayer-fajr
                             awqat--prayer-sunrise
                             awqat--prayer-dhuhr
                             awqat--prayer-asr
                             awqat--prayer-maghrib
-                            awqat--prayer-isha))
-  (unless no-reset
-    (setq awqat-sunrise-sunset-angle -0.833 ; In case the user changed it
-          awqat-maghrib-angle nil)))
+                            awqat--prayer-isha)))
 
 ;;; UI/Interactive functions and helpers.
 
