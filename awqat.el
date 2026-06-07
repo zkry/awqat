@@ -247,6 +247,11 @@ sunrise/sunset and safety offsets for Dhuhr and Asr."
   (setq awqat-asr-hanafi nil
         awqat-prayer-safety-offsets '(0.0 0.0 5.0 6.0 0.0 0.0)))
 
+(defun awqat-set-preset-diyanet-standard  ()
+  "Set the calculation method to the standard Diyanet İşleri Başkanlığı, Turkey."
+  (awqat--preset-with-angles -18.0 -17.0)
+  (setq awqat-prayer-safety-offsets '(0.0 -7.0 5.0 4.0 7.0 0.0)))
+
 (defun awqat-set-preset-muslim-pro ()
   "Use the calculation method defined by the Muslim Pro app, non official."
   (awqat--preset-with-angles -18.13 -16.3))
@@ -404,9 +409,6 @@ This is a latitude and season aware method."
 
 (defalias 'awqat-set-preset-algeria 'awqat-set-preset-muslim-world-league
   "Use calculation method by Ministry of Religious Affairs and Wakfs, Algeria.")
-
-(defalias 'awqat-set-preset-diyanet-standard 'awqat-set-preset-muslim-world-league
-  "Set the calculation method to the standard Diyanet İşleri Başkanlığı, Turkey.")
 
 (defalias 'awqat-set-preset-france-15 'awqat-set-preset-isna
   "Use calculation 15° method used in some mosques in France.")
