@@ -275,7 +275,7 @@ sunrise/sunset and safety offsets for Dhuhr and Asr."
                             awqat--prayer-maghrib
                             ,(lambda (d)
                                (let ((maghrib-time (awqat--prayer-maghrib d))
-                                     (ramadan-p (eq 9 (car (awqat--islamic-from-gregorian)))))
+                                     (ramadan-p (eq 9 (car (awqat--islamic-from-gregorian d)))))
                                  (list (+ (car maghrib-time) (if ramadan-p 2.0 1.5))
                                        (cadr maghrib-time)))))))
 
