@@ -156,7 +156,7 @@ List ordered as: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
   :type 'boolean
   :group 'awqat)
 
-(defcustom awqat-notifications-for-times '(t t t t t t)
+(defcustom awqat-notifications-for-times '(t nil t t t t)
   "List of booleans indicating whether to send notifications for each prayer time.
 The list order corresponds to: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
   :type '(repeat boolean)
