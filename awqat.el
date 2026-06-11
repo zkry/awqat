@@ -119,6 +119,19 @@ The `when-undefined' option is reserved for future use."
   :group 'awqat
   :type '(choice float (const t) (const nil) (const when-undefined)))
 
+(defcustom awqat-elevation 0.0
+  "The elevation above sea level in meters, at the user location.
+
+If the observation point is at height H meters above sea level, the
+depression angle of the horizon is increased by approximately:
+
+  0.0347° * sqrt(H)
+
+When set to non-zero, this will be used to adjust the sunrise/sunset
+angles."
+  :group 'awqat
+  :type 'float)
+
 (defcustom awqat-fajr-before-sunrise-offset 1.81
   "The Fajr time offset (in hours) before sunrise.
 
@@ -606,6 +619,10 @@ Or for today if no DAY is provided."
 
 ;;; Prayer Calculations ------------------------------------------------------------------
 
+(defun awqat-elevation-adjusted-angle (angle)
+  "Correct ANGLE for elevation."
+  (- angle (* 0.0347 (sqrt awqat-elevation))))
+
 (defun awqat--prayer-time (d prayer)
   "Calculate a time for PRAYER idx on given date D, applying safety offsets."
   (let* ((offset (nth prayer awqat-prayer-safety-offsets))
@@ -766,7 +783,7 @@ If `awqat-asr-hanafi' is non-nil, use double the length of noon shadow."
 
 (defun awqat--prayer-maghrib (d)
   "Calculate the time of Maghrib on date D."
-  (let* ((angle (or awqat-maghrib-angle awqat-sunrise-sunset-angle))
+  (let* ((angle (awqat-elevation-adjusted-angle (or awqat-maghrib-angle awqat-sunrise-sunset-angle)))
          (time (cadr (awqat-sunrise-sunset-angle d angle))))
     (list
      (if awqat-high-latitudes-adjust-maghrib
