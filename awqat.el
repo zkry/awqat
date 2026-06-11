@@ -472,6 +472,10 @@ This is a latitude and season aware method."
                             awqat--prayer-maghrib
                             awqat--prayer-isha-moonsighting)))
 
+(defun awqat-set-preset-canada-13 ()
+  "Use 13° calculation method used in some mosques in Canada."
+  (awqat--preset-with-angles -13.0 -13.0))
+
 (defalias 'awqat-set-preset-algeria 'awqat-set-preset-muslim-world-league
   "Use calculation method by Ministry of Religious Affairs and Wakfs, Algeria.")
 
@@ -492,6 +496,12 @@ This is a latitude and season aware method."
 
 (defalias 'awqat-set-preset-uae 'awqat-set-preset-gulf-region
   "Use the calculation method of UAE General Authority of Islamic Affairs And Endowments.")
+
+(defalias 'awqat-set-preset-canada-15 'awqat-set-preset-isna
+  "Use 15° calculation method used in some mosques in Canada.")
+
+(defalias 'awqat-set-preset-canada-18 'awqat-set-preset-karachi-university-of-islamic-sciences
+  "Use 18° calculation method used in some mosques in Canada.")
 
 ;;; Presets helper functions
 
