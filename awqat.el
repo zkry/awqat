@@ -170,7 +170,7 @@ including the Maliki, Shafii, and Hambali schools of thought."
   :type 'boolean
   :group 'awqat)
 
-(defcustom awqat-prayer-safety-offsets (make-list 6 0.0)
+(defcustom awqat-prayer-safety-offsets '(-3.0 0.0 3.0 3.0 3.0 3.0)
   "The offset in minutes applied for the six times.
 
 It is recommended to set values between 3 and 5 minutes to account for
