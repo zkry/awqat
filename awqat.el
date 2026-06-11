@@ -160,6 +160,9 @@ including the Maliki, Shafii, and Hambali schools of thought."
 (defcustom awqat-prayer-safety-offsets (make-list 6 0.0)
   "The offset in minutes applied for the six times.
 
+It is recommended to set values between 3 and 5 minutes to account for
+the uncertainty.
+
 List ordered as: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
   :type '(list float)
   :group 'awqat)
@@ -385,7 +388,14 @@ Former: Union des Organisations Islamiques de France."
   (awqat--preset-with-angles -12.0 -12.0))
 
 (defun awqat-set-preset-grande-mosquee-de-paris ()
-  "Use calculation method similar to one used by Grande Mosquée de Paris, Fr."
+  "Use calculation method similar to one used by Grande Mosquée de Paris, France.
+
+Please note that these angles aren't official. In some references, it is
+mentioned that the Grande Mosquée de Paris uses 18° for both Fajr and
+Isha. However, the official prayer times table published by the mosque
+doesn't match caclculations with these angles. The *guessed* -15 and -13
+angles worked for some time, but doesn't predict the time well
+currently."
   (awqat--preset-with-angles -15.0 -13.0))
 
 (defun awqat-set-preset-isna ()
@@ -453,10 +463,10 @@ This is a latitude and season aware method."
   "Use calculation method by Ministry of Religious Affairs and Wakfs, Algeria.")
 
 (defalias 'awqat-set-preset-france-15 'awqat-set-preset-isna
-  "Use calculation 15° method used in some mosques in France.")
+  "Use 15° calculation method used in some mosques in France.")
 
 (defalias 'awqat-set-preset-france-18 'awqat-set-preset-karachi-university-of-islamic-sciences
-  "Use calculation 18° method used in some mosques in France.")
+  "Use 18° calculation method used in some mosques in France.")
 
 (defalias 'awqat-set-preset-indonesia 'awqat-set-preset-jakim
   "Use the calculation method defined by the Kementerian Agama Republik Indonesia.")
@@ -503,7 +513,7 @@ Optionally, set the MAGHRIB angle."
           (decoded-time-year time-lst))))
 
 (defun awqat--tomorrow ()
-  "Return tommorow's date in the format (M D Y)."
+  "Return tomorrow's date in the format (M D Y)."
   (let* ((tomorrow (time-add nil (* 60 60 24)))
          (time-lst (decode-time tomorrow)))
     (list (decoded-time-month time-lst)
@@ -549,7 +559,7 @@ Or for today if no DAY is provided."
     (nreverse times)))
 
 (defun awqat--next-time ()
-  "Return the next time comming up."
+  "Return the next time coming up."
   (let* ((now (awqat--now))
          (times (seq-map-indexed (lambda (time idx)
                                    (append time (list idx)))
@@ -777,7 +787,7 @@ If `awqat-asr-hanafi' is non-nil, use double the length of noon shadow."
     (list (awqat--adjust-for-high-latitudes d (car time) awqat-isha-angle 1) (cadr time))))
 
 (defun awqat--prayer-isha-diyanet (d)
-  "Calculate the time of fajr for date D using third-portion if lat > 45."
+  "Calculate the time of Isha for date D using third-portion if lat > 45."
   (if (< (calendar-latitude) 45.0)
       (awqat--prayer-isha d)
     (let ((third-portion (awqat--third-portion-calc d awqat-isha-angle))
@@ -789,7 +799,7 @@ If `awqat-asr-hanafi' is non-nil, use double the length of noon shadow."
             timezone))))
 
 (defun awqat--prayer-isha-angle (d)
-  "Calculate the time of fajr for date D using angle method if necessary."
+  "Calculate the time of Isha for date D using angle method if necessary."
   (if (awqat--use-angle-method-p d)
       (let ((offset (awqat--angle-approx-offset d awqat-isha-angle))
             (timezone (awqat--timezone d))
@@ -798,7 +808,7 @@ If `awqat-asr-hanafi' is non-nil, use double the length of noon shadow."
     (awqat--prayer-isha d)))
 
 (defun awqat--prayer-isha-offset (d &optional offset)
-  "Calculate the time of fajr based on fixed time for given date D.
+  "Calculate the time of Isha based on fixed time for given date D.
 
 When OFFSET is non-nil, use it instead of `awqat-isha-after-sunset-offset'."
   (when-let* ((sunset (awqat--sunset d)))
@@ -940,7 +950,7 @@ Example of date: (7 22 2019)"
     0.0))
 
 (defun awqat-solar-noon (d)
-  "Calculate the time of Zuhr on date D."
+  "Calculate the time of the noon on date D."
   (let* ((exact-local-noon (solar-exact-local-noon d))
          (midday-time (dst-adjust-time d (cadr exact-local-noon)))
          (base-time (cadr midday-time)))
