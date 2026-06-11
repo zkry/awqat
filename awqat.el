@@ -569,7 +569,7 @@ Optionally, set the MAGHRIB angle."
              (propertize (format "%dh%02dm"
                                  (floor time-remaining)
                                  (* 60 (- time-remaining (floor time-remaining))))
-                         'face (if (< time-remaining 0.5) '(:foreground "red") '())))))
+                         'face (when (< time-remaining 0.5) '(:foreground "red"))))))
 
 (defun awqat--times-for-day (&optional day)
   "Return a list of all the prayer times for a given DAY.
