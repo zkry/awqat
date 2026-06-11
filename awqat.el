@@ -697,15 +697,9 @@ Used by the Moonsighting Committee Worldwide method."
 
 (defun awqat--prayer-fajr-diyanet (d)
   "Calculate the time of fajr for date D using third-portion if lat > 45."
-  (if (< (calendar-latitude) 45.0)
-      (awqat--prayer-fajr d)
-    (let ((third-portion (awqat--third-portion-calc d awqat-fajr-angle))
-          (sunrise (awqat--sunrise d))
-          (timezone (awqat--timezone d)))
-      (list (if (> third-portion 1.3333)
-                (- sunrise 1.3333)
-              (+ sunrise third-portion))
-            timezone))))
+  (let ((awqat-high-latitudes-adjustment-max-latitude 45.0)
+        (awqat-high-latitudes-adjustment-method 'one-third-of-night))
+    (awqat--prayer-fajr d)))
 
 (defun awqat--adjust-for-high-latitudes (d time angle sign &optional method)
   "Get the high latitudes adjustment for TIME of date D.
@@ -815,15 +809,9 @@ If `awqat-asr-hanafi' is non-nil, use double the length of noon shadow."
 
 (defun awqat--prayer-isha-diyanet (d)
   "Calculate the time of Isha for date D using third-portion if lat > 45."
-  (if (< (calendar-latitude) 45.0)
-      (awqat--prayer-isha d)
-    (let ((third-portion (awqat--third-portion-calc d awqat-isha-angle))
-          (sunset (awqat--sunset d))
-          (timezone (awqat--timezone d)))
-      (list (if (> third-portion 1.3333)
-                (+ sunset 1.3333)
-              (+ third-portion sunset))
-            timezone))))
+  (let ((awqat-high-latitudes-adjustment-max-latitude 45.0)
+        (awqat-high-latitudes-adjustment-method 'one-third-of-night))
+    (awqat--prayer-isha d)))
 
 (defun awqat--prayer-isha-angle (d)
   "Calculate the time of Isha for date D using angle method if necessary."
@@ -869,14 +857,6 @@ the sun does not set/rise for a number of days every year."))))
 This method calculates the time based on a portion of angle/60 of the night."
   (let ((night-duration (awqat-night-duration d)))
     (/ (* (abs angle) night-duration) 60)))
-
-(defun awqat--third-portion-calc (d angle)
-  "Calculate the time of Isha for date D with ANGLE using third portion method.
-
-This method is considered only if calendar latitude is greater than 45°."
-  (let ((sunset (awqat--sunset d))
-        (fecri-sadik (caadr (awqat-sunrise-sunset-angle d angle))))
-    (/ (mod (- (+ fecri-sadik 24.0) sunset) 24.0) 3)))
 
 (defun awqat--timezone (d)
   "Return the timezone used to calculate times on date D."
