@@ -174,8 +174,6 @@ List ordered as: (Fajr Sunrise Dhuhr Asr Maghrib Isha)."
   :type '(list function)
   :group 'awqat)
 
-(make-obsolete-variable 'awqat--prayer-funs 'awqat-prayer-funs "1.0.0")
-
 (defvar awqat--prayer-names '("Fajr" "Sunrise" "Dhuhr" "Asr" "Maghrib" "Isha")
   "Names of the six times.")
 
@@ -254,6 +252,12 @@ which gives an offset of 50 arcminutes, hence the 0.833° value.")
 (defun awqat-set-preset-one-seventh-of-night () (awqat-set-preset-high-latitudes 'one-seventh-of-night))
 (make-obsolete 'awqat-set-preset-midnight 'awqat-set-preset-high-latitudes "v1.0.0")
 (make-obsolete 'awqat-set-preset-one-seventh-of-night 'awqat-set-preset-high-latitudes "v1.0.0")
+(define-obsolete-function-alias 'awqat-duration-of-night 'awqat-night-duration "1.0.0")
+(define-obsolete-function-alias 'awqat--stop-adhan 'awqat-stop-adhan "0.3.0")
+(make-obsolete-variable 'awqat--prayer-funs 'awqat-prayer-funs "1.0.0")
+(make-obsolete-variable 'awqat--adhan-file 'awqat-adhan-file "1.0.0")
+(make-obsolete-variable 'awqat--play-adhan-for-times 'awqat-play-adhan-for-times "1.0.0")
+
 ;;; Preconfigured presets
 
 (defun awqat-use-angle-based-method ()
@@ -1187,14 +1191,10 @@ file to play for the specified time."
   :group 'awqat
   :type '(list boolean))
 
-(make-obsolete-variable 'awqat--play-adhan-for-times 'awqat-play-adhan-for-times "1.0.0")
-
 (defcustom awqat-adhan-file nil
   "Path to the sound file to play when the prayer time is reached."
   :type '(file :must-match t)
   :group 'awqat)
-
-(make-obsolete-variable 'awqat--adhan-file 'awqat-adhan-file "1.0.0")
 
 (defvar awqat--adhan-process nil
   "The process playing the current sound.  Used to stop the sound.")
@@ -1232,8 +1232,6 @@ If no SOUND-FILE is provided, use `awqat-adhan-file'."
                   (run-at-time seconds-remaining nil (lambda ()
                                                        (awqat--play-adhan special-sound)))
                 (run-at-time seconds-remaining nil #'awqat--play-adhan)))))))
-
-(define-obsolete-function-alias 'awqat--stop-adhan 'awqat-stop-adhan "0.3.0")
 
 (defun awqat-stop-adhan ()
   "Stop the currently playing sound."
