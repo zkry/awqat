@@ -93,8 +93,8 @@ Maghrib."
 (defcustom awqat-high-latitudes-adjustment-method 'angle-based
   "The adjustment method to use for high latitudes (> 48.5°).
 
-It can be `one-seventh-of-night', `midnight' or `angle-based' or nil for
-no adjustment."
+It can be `one-seventh-of-night', `one-third-of-night', `midnight' or
+`angle-based' or nil for no adjustment."
   :group 'awqat
   :type '(choice (const one-seventh-of-night)
                  (const one-third-of-night)
@@ -728,11 +728,8 @@ specified, otherwise, follow `awqat-high-latitudes-adjustment-method'."
 
 (defun awqat--prayer-fajr-angle (d)
   "Calculate the time of fajr for date D using angle method if necessary."
-  (if (awqat--use-angle-method-p d)
-      (let ((offset (awqat--angle-approx-offset d awqat-fajr-angle))
-            (timezone (awqat--timezone d))
-            (sunrise (awqat--sunrise d)))
-        (list (- sunrise offset) timezone))
+  (let ((awqat-high-latitudes-adjustment-max-latitude 45.0)
+        (awqat-high-latitudes-adjustment-method 'angle-based))
     (awqat--prayer-fajr d)))
 
 (defun awqat--prayer-fajr-offset (d)
@@ -815,11 +812,8 @@ If `awqat-asr-hanafi' is non-nil, use double the length of noon shadow."
 
 (defun awqat--prayer-isha-angle (d)
   "Calculate the time of Isha for date D using angle method if necessary."
-  (if (awqat--use-angle-method-p d)
-      (let ((offset (awqat--angle-approx-offset d awqat-isha-angle))
-            (timezone (awqat--timezone d))
-            (sunset (awqat--sunrise d)))
-        (list (+ sunset offset) timezone))
+  (let ((awqat-high-latitudes-adjustment-max-latitude 45.0)
+        (awqat-high-latitudes-adjustment-method 'angle-based))
     (awqat--prayer-isha d)))
 
 (defun awqat--prayer-isha-offset (d &optional offset)
@@ -851,13 +845,6 @@ the sun does not set/rise for a number of days every year."))))
 
 ;;; Time Calculations --------------------------------------------------------------------
 
-(defun awqat--angle-approx-offset (d angle)
-  "Calculate the time of isha for date D at with ANGLE using andle method.
-
-This method calculates the time based on a portion of angle/60 of the night."
-  (let ((night-duration (awqat-night-duration d)))
-    (/ (* (abs angle) night-duration) 60)))
-
 (defun awqat--timezone (d)
   "Return the timezone used to calculate times on date D."
   (cadar (awqat-sunrise-sunset d)))
@@ -869,22 +856,6 @@ This method calculates the time based on a portion of angle/60 of the night."
 (defun awqat--sunset (d)
   "Calculate the sunset for a given date D."
   (caadr (awqat-sunrise-sunset d)))
-
-(defun awqat--use-angle-method-p (d)
-  "Determine if on date D, the angle method for Isha/Fajr should be used."
-  (let ((isha (caadr (awqat-sunrise-sunset-angle d awqat-isha-angle)))
-        (fajr (caar (awqat-sunrise-sunset-angle d awqat-fajr-angle))))
-    (or (not isha)
-        (not fajr)
-        (let* ((isha-offset (awqat--angle-approx-offset d awqat-isha-angle))
-               (sunset (awqat--sunset d))
-               (isha-angle (+ sunset isha-offset))
-               (fajr-offset (awqat--angle-approx-offset d awqat-fajr-angle))
-               (sunrise (awqat--sunrise d))
-               (fajr-angle (- sunrise fajr-offset))
-               (isha-fajr-diff (mod (- (+ 24.0 fajr) isha) 24)) ;
-               (isha-fajr-angle-diff (- (+ 24.0 fajr-angle) isha-angle))) ;
-          (> isha-fajr-angle-diff isha-fajr-diff)))))
 
 (defun awqat--isha-time-min (d time1 time2)
   "Works like `min', used to compare Isha TIME1 and TIME2 for date D.
