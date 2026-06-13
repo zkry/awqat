@@ -631,7 +631,7 @@ Or for today if no DAY is provided."
 
 (defun awqat-elevation-adjusted-angle (angle)
   "Correct ANGLE for elevation."
-  (- angle (* 0.0347 (sqrt awqat-elevation))))
+  (- angle (* 0.0347 (sqrt (max 0.0 awqat-elevation)))))
 
 (defun awqat--prayer-time (d prayer)
   "Calculate a time for PRAYER idx on given date D, applying safety offsets."
